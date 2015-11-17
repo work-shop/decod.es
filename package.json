@@ -1,7 +1,7 @@
 {
   "name": "decod.es",
   "version": "0.0.0",
-  "repository": "https://github.com/work-shop/decodes.git",
+  "repository": "https://github.com/work-shop/decod.es.git",
   "description": "a build process and front-end for the decod.es documentation platform",
   "main": "Main.js",
   "scripts": {
