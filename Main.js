@@ -2,4 +2,4 @@
 
 var args = require('./Config');
 
-console.log( args.build );
+console.log( args );
