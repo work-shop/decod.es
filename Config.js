@@ -10,7 +10,13 @@ var Package = JSON.parse( fs.readFileSync('./package.json') );
 
 var firebaseURL = "https://incandescent-torch-1447.firebaseio.com/";
 
+var parserURL = path.join( __dirname, '..', 'decod.es-parser' );
+
 var tempateDir = path.join( process.cwd(), 'templates' );
+
+
+
+
 
 var parser = new ArgumentParser({
 	version: Package.version,
@@ -42,6 +48,19 @@ var parse = subparsers.addParser('parse', { addHelp: true});
 		{
 			help: 'Specify the destination firebase to store the parsed data in.',
 			defaultValue: firebaseURL
+		}
+	);
+
+	/**
+	 * The parse command tells the system to read a 
+	 * specified filestructure, parse the required data from
+	 * it, and store the results in the specified firebase.
+	 */
+	parse.addArgument(
+		['-p', '--parse-tool'],
+		{
+			help: 'Specify the location of the Python AST Parser to use in the parse process.',
+			defaultValue: parserURL
 		}
 	);
 
