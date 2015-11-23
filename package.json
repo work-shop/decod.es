@@ -16,6 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "argparse": "^1.0.3",
-    "async": "^1.5.0"
+    "async": "^1.5.0",
+    "python-shell": "^0.2.0",
+    "walkdir": "0.0.11"
   }
 }
