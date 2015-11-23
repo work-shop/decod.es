@@ -12,6 +12,8 @@ var firebaseURL = "https://incandescent-torch-1447.firebaseio.com/";
 
 var parserURL = path.join( __dirname, '..', 'decod.es-parser' );
 
+var pythonPath = path.join( __dirname, '..', 'decodes-parser', 'python-exec' );
+
 var tempateDir = path.join( process.cwd(), 'templates' );
 
 
@@ -52,18 +54,16 @@ var parse = subparsers.addParser('parse', { addHelp: true});
 	);
 
 	/**
-	 * The parse command tells the system to read a 
-	 * specified filestructure, parse the required data from
-	 * it, and store the results in the specified firebase.
+	 * The parse command tells the system to use the
+	 * parse tool located at the specified location
 	 */
 	parse.addArgument(
-		['-p', '--parse-tool'],
+		['-t', '--parse-tool'],
 		{
 			help: 'Specify the location of the Python AST Parser to use in the parse process.',
 			defaultValue: parserURL
 		}
 	);
-
 
 
 /**
@@ -122,6 +122,22 @@ var serve = subparsers.addParser('serve', { addHelp: true });
 		}
 	);
 
+
+parser.addArgument(
+	['-q', '--quiet'],
+	{
+		help: 'Just present the minimal output report, at the end of parsing.',
+		defaultValue: false
+	}
+);
+
+parser.addArgument(
+	['-s', '--silent'],
+	{
+		help: 'Produce no output at all, except on an error condition.',
+		defaultValue: false
+	}
+);
 
 
 module.exports = parser.parseArgs();
