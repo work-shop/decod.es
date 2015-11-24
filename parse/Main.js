@@ -10,7 +10,7 @@ module.exports = function( args ) {
 
 		if ( err ) { console.error( err ); }
 
-		console.dir( util.inspect( structure ) );
+		
 		
 	});
 
