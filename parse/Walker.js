@@ -4,7 +4,12 @@ var fs = require('fs');
 var path = require('path');
 var walk = require('walkdir');
 var util = require('util');
-// var Printer = require('../print/Main');
+
+var Log = require('./Log')();
+
+var SourceASTQuotient = require('./quotients/SourceASTQuotient' );
+var ExampleASTQuotient = require('./quotients/ExampleASTQuotient' );
+
 
 function Walker( args, source, callback ) {
 
@@ -14,56 +19,39 @@ function Walker( args, source, callback ) {
 
 		var stats = fs.lstatSync( source = path.normalize( source ) );
 
-		var log = require('./Log')();
-
 		if ( stats.isDirectory() ) {
-
-
 
 			var pathEmitter = walk( source );
 
 			pathEmitter.on( 'file', function( filename ) { 
 
-				file( filename, log ).parse( function( err, ast ) {
+				file( filename, Log ).parse( function( err, result ) {
 
 					if ( err ) throw err;
 
-					console.log( util.inspect( ast ) );
+					console.log( util.inspect( result ) );
 
 				});
 
 			});
 
-			//pathEmitter.on( 'end', function( ) { log.lock( function() { callback( null, log ); }); });
+			//pathEmitter.on( 'end', function( ) { log.lock( function( methods ) { callback( null, log ); }); });
 
 
 
 		} else if ( stats.isFile() ) {
 
+			file( source, Log ).parse( SourceASTQuotient, function(  ) {
 
-
-			file( source, log ).parse( function( err, ast ) {
-
-				if ( err ) throw err;
-
-				try {
-
-					var astStructure = JSON.parse( ast );
-
-					console.log( util.inspect( astStructure.ast, false, null, true) );
-
-				} catch ( parseError ) {
-
-				} 
-
+				Log.lock( function( methods ) { console.log( methods.print() ); } );
 
 			});
 
-			//log.lock( function() { callback( null, log ); });
-
-
-
 		} else if ( stats.isSymbolicLink() ) {
+			/**
+			 * We've encountered a symbolic link. 
+			 * Probably just ignore this / print an error message,
+			 */
 
 			console.log('symbolic link');
 			callback( null, source );
@@ -77,7 +65,11 @@ function Walker( args, source, callback ) {
 		}
 
 	} catch ( e ) {
-
+		/**
+		 * We've encountered an IOError from lstat, or else
+		 * we've encountered an uncaught error from the parse
+		 * process.
+		 */
 		callback( e );
 
 	}
