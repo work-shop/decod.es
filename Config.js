@@ -12,9 +12,9 @@ var firebaseURL = "https://incandescent-torch-1447.firebaseio.com/";
 
 var parserURL = path.join( __dirname, '..', 'decod.es-parser' );
 
-var pythonPath = path.join( __dirname, '..', 'decodes-parser', 'python-exec' );
-
 var tempateDir = path.join( process.cwd(), 'templates' );
+
+var baseName = 'decodes';
 
 
 
@@ -62,6 +62,14 @@ var parse = subparsers.addParser('parse', { addHelp: true});
 		{
 			help: 'Specify the location of the Python AST Parser to use in the parse process.',
 			defaultValue: parserURL
+		}
+	);
+
+	parser.addArgument(
+		[ '-b', '--base-name'],
+		{
+			help: 'Specify a directory base-name to reduce filepaths against in parsing.',
+			defaultValue: baseName
 		}
 	);
 
