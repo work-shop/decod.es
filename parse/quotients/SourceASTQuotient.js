@@ -1,0 +1,139 @@
+"use strict";
+
+var fs = require('fs');
+
+var match = require('../../Match');
+
+var slice = require('slice-file');
+
+/**
+ * Given a full filepath and an AST representing the contents of
+ * that filepath, a quotient term return a collapses the AST according
+ * to a given ruleset, and returns a quotient object – the AST appropriately
+ * "requoted" – along with a path to seat that object at in the overarching
+ * JSON structure.
+ *
+ * The SourceASTQuotient collapses a file according to its code definitions.
+ * 
+ * @param  {[type]} filepath [description]
+ * @param  {[type]} ast      [description]
+ * @return {[type]}          [description]
+ */
+module.exports = function sourceASTQuotient( filepath, ast ) {
+	var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
+
+	/**
+	 * The divide routine takes an object assumed to have
+	 * a .type property containing a String. The TypeDivision
+	 * of this object 
+	 * @param {[type]} object [description]
+	 * @param {[type]} key    [description]
+	 */
+	function divide( ast ) {
+		var quotient = {};
+
+		match(
+			ast,
+			[
+				match.expr( match.matchtype( 'FunctionDef' ),
+					function() {
+
+						quotient.name = ast.name;
+
+						if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
+						quotient.documentation = ast.docstring;
+
+						quotient.start = ast.position.line;
+						quotient.end = closingLineFromAST( ast );
+						quotient.code = false;
+
+						quotient.code = file.slice( quotient.start, quotient.end + 1 );
+						
+					}),
+
+				match.expr( match.matchtype( 'ClassDef' ),
+					function() {
+
+						quotient.name = ast.name;
+						quotient.definedIn = filepath;
+						quotient.documentation = ast.docstring;
+
+						if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
+						quotient.definitions = ast.body.map( divide ).filter( function( x ) { return x !== null; } );
+
+						quotient.start = ast.position.line;
+						quotient.end = closingLineFromQuotient( quotient );
+
+					}),
+
+				match.expr( match.matchtype( 'Module' ),
+					function() {
+
+						quotient.definedIn = filepath;
+						quotient.definitions = ast.body.map( divide ).filter( function( x ) { return x !== null; } );
+						quotient.start = ast.position.line;
+						quotient.end = closingLineFromQuotient( quotient );
+					}),
+
+				match.expr( match.otherwise, function( ) { quotient = null; } )
+			]
+		);
+		
+		return quotient;
+	}
+
+	var division = divide( ast );
+	//file.close();
+
+	return division;
+};
+
+
+/**
+ * given an AST quotient structure, this method produces
+ * the last line in the corresponding sourcefile where
+ * that the structure ranges over
+ * 
+ * @param  {JSON} quotient a Source Quotient object
+ * @return {Number}         a file line number
+ */
+function closingLineFromQuotient( quotient ) {
+
+	if ( typeof quotient.end !== "undefined" ) {
+
+		return quotient.end;
+
+	} else if ( typeof quotient.definitions !== "undefined" ) {
+
+		return closingLineFromQuotient( quotient.definitions[ quotient.definitions.length - 1 ] );
+
+	} else {
+
+		return quotient.start;
+
+	}
+
+}
+
+/**
+ * given an AST structure, this routine produces a number
+ * representing the extent of a file that that AST structure
+ * ranges over 
+ * 
+ * @param  {JSONAST} ast the ast to check
+ * @return {Number}     the last line on which the AST is defined
+ */
+function closingLineFromAST( ast ) {
+
+	if ( typeof ast.body !== "undefined" ) {
+  
+		return closingLineFromAST( ast.body[ ast.body.length - 1 ] );
+
+	} else {
+
+		return ast.position.line;
+
+	}
+
+}
+
