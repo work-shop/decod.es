@@ -20,13 +20,6 @@ function Walker( args, source, callback ) {
 		var Log = new Logger( countFilesSync( source = path.normalize( source ) ) );
 
 		walk( source ).on( 'file', function( filename ) { 
-			/**
-			 * 
-			 * We've encountered a file of some kind. What we'd like to do 
-			 * is ensure that the file matches one of our rules, and then
-			 * have it execute the rule on the match it encounters.
-			 * 
-			 */
 
 			 rules( filename, Log, noop );
 
@@ -38,14 +31,11 @@ function Walker( args, source, callback ) {
 
 			//console.log( util.inspect( methods.json(), false, null, true ) );
 
+
 		} );
 
 	} catch ( e ) {
-		/**
-		 * We've encountered an IOError from lstat, or else
-		 * we've encountered an uncaught error from the parse
-		 * process.
-		 */
+
 		callback( e );
 
 	}
