@@ -65,7 +65,7 @@ var parse = subparsers.addParser('parse', { addHelp: true});
 		}
 	);
 
-	parser.addArgument(
+	parse.addArgument(
 		[ '-b', '--base-name'],
 		{
 			help: 'Specify a directory base-name to reduce filepaths against in parsing.',
