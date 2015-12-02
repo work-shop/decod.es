@@ -2,9 +2,9 @@
 
 var fs = require('fs');
 
-var match = require('../../Match');
+var path = require( 'path' );
 
-var slice = require('slice-file');
+var match = require('../../Match');
 
 /**
  * Given a full filepath and an AST representing the contents of
@@ -19,73 +19,99 @@ var slice = require('slice-file');
  * @param  {[type]} ast      [description]
  * @return {[type]}          [description]
  */
-module.exports = function sourceASTQuotient( filepath, ast ) {
-	var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
+module.exports = function( args ) {
 
-	/**
-	 * The divide routine takes an object assumed to have
-	 * a .type property containing a String. The TypeDivision
-	 * of this object 
-	 * @param {[type]} object [description]
-	 * @param {[type]} key    [description]
-	 */
-	function divide( ast ) {
-		var quotient = {};
+	return function sourceASTQuotient( filepath, ast ) {
+		var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
 
-		match(
-			ast,
-			[
-				match.expr( match.matchtype( 'FunctionDef' ),
-					function() {
+		/**
+		 * The divide routine takes an object assumed to have
+		 * a .type property containing a String. The TypeDivision
+		 * of this object 
+		 * @param {[type]} object [description]
+		 * @param {[type]} key    [description]
+		 */
+		function divideAST( ast ) {
+			var quotient = {};
 
-						quotient.name = ast.name;
+			match(
+				ast,
+				[
+					match.expr( match.matchtype( 'FunctionDef' ),
+						function() {
 
-						if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
-						quotient.documentation = ast.docstring;
+							quotient.name = ast.name;
 
-						quotient.start = ast.position.line;
-						quotient.end = closingLineFromAST( ast );
-						quotient.code = false;
+							if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
+							quotient.documentation = ast.docstring;
 
-						quotient.code = file.slice( quotient.start, quotient.end + 1 );
-						
-					}),
+							quotient.start = ast.position.line;
+							quotient.end = closingLineFromAST( ast );
+							quotient.code = false;
 
-				match.expr( match.matchtype( 'ClassDef' ),
-					function() {
+							quotient.code = file.slice( quotient.start, quotient.end + 1 );
+							
+						}),
 
-						quotient.name = ast.name;
-						quotient.definedIn = filepath;
-						quotient.documentation = ast.docstring;
+					match.expr( match.matchtype( 'ClassDef' ),
+						function() {
 
-						if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
-						quotient.definitions = ast.body.map( divide ).filter( function( x ) { return x !== null; } );
+							quotient.name = ast.name;
+							quotient.definedIn = filepath;
+							quotient.documentation = ast.docstring;
 
-						quotient.start = ast.position.line;
-						quotient.end = closingLineFromQuotient( quotient );
+							if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
+							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
 
-					}),
+							quotient.start = ast.position.line;
+							quotient.end = closingLineFromQuotient( quotient );
 
-				match.expr( match.matchtype( 'Module' ),
-					function() {
+						}),
 
-						quotient.definedIn = filepath;
-						quotient.definitions = ast.body.map( divide ).filter( function( x ) { return x !== null; } );
-						quotient.start = ast.position.line;
-						quotient.end = closingLineFromQuotient( quotient );
-					}),
+					match.expr( match.matchtype( 'Module' ),
+						function() {
 
-				match.expr( match.otherwise, function( ) { quotient = null; } )
-			]
-		);
-		
-		return quotient;
-	}
+							quotient.definedIn = filepath;
+							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
+							quotient.start = ast.position.line;
+							quotient.end = closingLineFromQuotient( quotient );
+						}),
 
-	var division = divide( ast );
-	//file.close();
+					match.expr( match.otherwise, function( ) { quotient = null; } )
+				]
+			);
+			
+			return quotient;
+		}
 
-	return division;
+		function prefixPath( filepath ) {
+
+			var parsed = path.parse( filepath ).dir;
+
+			var baseIndex = parsed.indexOf( args.base_name );
+
+			if ( baseIndex !== -1 ) {
+
+				parsed = parsed.substring( parsed.indexOf( args.base_name ) + args.base_name.length );
+
+			}
+
+			return  parsed.split( path.sep ).filter( function( component ) { return component !== ''; } );
+
+		}
+
+
+		var prefix = prefixPath( filepath );
+
+		var division = divideAST( ast );
+
+
+		return division.definitions.map( function( quotient ) {
+
+			return { prefixes: prefix, value: quotient };
+
+		});
+	};
 };
 
 
