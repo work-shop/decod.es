@@ -6,11 +6,11 @@ function Rules( args, ruleset ) {
 
 	if ( typeof ruleset === "undefined") ruleset = baseset( args );
 	
-	var RuleTester = function( filepath, ast ) {
+	var RuleTester = function( filename, log, done ) {
 
 		return ruleset.reduce( function( result, rule ) {
 
-			return ( result !== false ) ? result : rule.test( filepath, ast ); 
+			return ( result !== false ) ? result : rule.test( filename, log, done ); 
 
 		}, false );
 

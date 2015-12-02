@@ -8,6 +8,10 @@ function Rule() {
 
 	var condition = Rule.unit;
 
+	/**
+	 * The action is represented by a process object that exposes a run method
+	 * @type {[type]}
+	 */
 	var action = Rule.nothing;
 
 	self.when = function( additional ) {
@@ -17,16 +21,16 @@ function Rule() {
 		return self;
 	};
 
-	self.preform = function( replacement ) {
+	self.preform = function( process ) {
 
-		action = replacement;
+		action = process;
 
 		return self;
 	};
 
-	self.test = function( filepath, ast ) {
+	self.test = function( filepath, log, done ) {
 
-		return ( condition( filepath, ast ) ) ? action( filepath, ast ) : false;
+		return ( condition( filepath, log ) ) ? action( filepath, log, done ) : false;
 
 	};
 
