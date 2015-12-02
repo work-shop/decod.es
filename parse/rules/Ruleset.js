@@ -22,7 +22,7 @@ var 	and = Rule.and,
 	
 	or = Rule.or,
 
-	not = Rule.not,
+	// not = Rule.not,
 	
 	contains = Rule.contains, 
 
@@ -44,8 +44,6 @@ module.exports = function( args ) {
 	return [
 
 		new Rule().when( contains('.DS_Store') ).preform( skip ),
-
-		new Rule().when( within('problems') ).preform( skip ),
 
 		new Rule().when( and( contains('.py'), or( within('test', 'test'), within('test', 'io') ) ) ).preform( skip ),
 
