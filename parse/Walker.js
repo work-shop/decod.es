@@ -19,9 +19,7 @@ function Walker( args, source, callback ) {
 
 		var Log = new Logger( countFilesSync( source = path.normalize( source ) ) );
 
-		var pathEmitter = walk( source );
-
-		pathEmitter.on( 'file', function( filename ) { 
+		walk( source ).on( 'file', function( filename ) { 
 			/**
 			 * 
 			 * We've encountered a file of some kind. What we'd like to do 
@@ -31,8 +29,6 @@ function Walker( args, source, callback ) {
 			 */
 
 			 rules( filename, Log, noop );
-
-			//file( filename, Log ).parse( Rules, noop );
 
 		});
 
