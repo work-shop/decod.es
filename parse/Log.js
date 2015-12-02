@@ -10,6 +10,8 @@ function Log( expecting ) {
 	/**
 	 * This integer counts the number of processes
 	 * waiting for entry to the log structure.
+	 *
+	 * @type {Integer}
 	 */
 	var entries = 0;
 
@@ -68,6 +70,7 @@ function Log( expecting ) {
 		},
 
 		write: function( JSONKeypath, JSONValue ) {
+
 			function traverse( object, keyindex, value ) {
 
 				object = object || {};
