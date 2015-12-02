@@ -32,8 +32,8 @@ function Log( expecting ) {
 	 * @type {Array}
 	 */
 	var recordStructure = new Table({
-		head: ["status", "file", "message", "timestamp"],
-		colWidths: [10,80,20,20],
+		head: [ "file","status", "message", "timestamp"],
+		colWidths: [80,10,30,20],
 		wordWrap: true,
 		style: {
 			head: []
@@ -62,9 +62,9 @@ function Log( expecting ) {
 
 		record: function( timestamp, path, message, status ) {
 			recordStructure.push( [ 
-				colorStatus( status ),
 				path,
-				( typeof message !== undefined ) ? message : "",
+				colorStatus( status ),
+				Color.white.bold( message ),
 				timestamp
 			] );
 		},
