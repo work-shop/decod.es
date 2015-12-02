@@ -46,7 +46,7 @@ module.exports = function ( args ) {
 		 * @param {(filepath, AST) -> {prefix: [String], value: JSON }} transform a function describing how to reduce a successful map of this file.
 		 * @param {(result) -> ()} done a continuation describing how to continue processing.
 		 */
-		self.parse = function( transform, done ) {
+		self.run = function( transform, done ) {
 
 			configuration.args = [ '-p', path.resolve( filename ) ];
 
@@ -160,7 +160,7 @@ module.exports = function ( args ) {
 
 				} catch ( e ) {
 
-					quotients = {success: false, message: e.toString() };
+					quotients = { success: false, message: e.toString() };
 
 				}
 
@@ -189,7 +189,7 @@ module.exports = function ( args ) {
 
 				 	} else {
 
-				 		methods.record( Date.now(), quotients.message, undefined, "OK" );
+				 		methods.record( Date.now(), filename, quotients.message, "OK" );
 
 				 	}
 
