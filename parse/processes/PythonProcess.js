@@ -8,6 +8,8 @@ var python = require('python-shell');
 
 var pythonMain = "Main.py";
 
+var maxParseAttempts = 5;
+
 /** 
  * We wrap the module in an argument environment
  * inherited from the commandline invocation. This
@@ -46,7 +48,9 @@ module.exports = function ( args ) {
 		 * @param {(filepath, AST) -> {prefix: [String], value: JSON }} transform a function describing how to reduce a successful map of this file.
 		 * @param {(result) -> ()} done a continuation describing how to continue processing.
 		 */
-		self.run = function( transform, done ) {
+		self.run = function( transform, done, attempt ) {
+
+			attempt = attempt || 1;
 
 			configuration.args = [ '-p', path.resolve( filename ) ];
 
@@ -62,12 +66,25 @@ module.exports = function ( args ) {
 					} else {
 
 						try {
+							if ( result === null ) {
 
-							dispatch( transform, done, null, JSON.parse( result ) );
+								 if ( attempt === maxParseAttempts ) {
+
+								 	throw new Error( util.format( 'NullOutputError: recieved \"null\" back from subprocess after %d attempts.', maxParseAttempts  ) )
+
+								 } else {
+
+								 	self.run( transform, done, attempt + 1 );
+
+								 }
+
+							} else {
+
+								dispatch( transform, done, null, JSON.parse( result ), attempt );
+
+							}
 
 						} catch ( parseError ) {
-
-							console.log( parseError );
 
 							dispatch( transform, done, parseError );
 
@@ -79,7 +96,7 @@ module.exports = function ( args ) {
 			);
 		};
 
-		var dispatch = function( transform, done, error, result ) {
+		var dispatch = function( transform, done, error, result, attempts ) {
 
 			if ( error !== null ) {
 				/* 
@@ -100,6 +117,9 @@ module.exports = function ( args ) {
 						methods.record( Date.now(), filename, error.toString(), "Parse" );
 
 					} else {
+
+						console.log('error !== null');
+						console.log( util.inspect( error ) );
 
 						methods.record( Date.now(), filename, error.toString(), "PY IO" );
 
@@ -126,6 +146,9 @@ module.exports = function ( args ) {
 						methods.record( Date.now(), filename, result.context, "Syntax" );
 
 					} else {
+
+						console.log('result.success === false');
+						console.log( util.inspect( error ) );
 
 						methods.record( Date.now(), filename, result.message, "PY IO" );
 
@@ -174,7 +197,12 @@ module.exports = function ( args ) {
 
 						 		if ( quotient ) {
 
-						 			methods.record( Date.now(), ( index === 0 ) ? filename : undefined, util.format('Parsed %d Object(s)', successes ) , "OK" );
+						 			methods.record( 
+						 				Date.now(), 
+						 				( index === 0 ) ? filename : undefined, 
+						 				( index === 0 ) ? util.format('%d Out, %d Attempt(s)', successes, attempts ) : undefined, 
+						 				"OK" 
+						 			);
 
 						 			methods.write( quotient.prefixes, quotient.value );
 
