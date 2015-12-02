@@ -67,6 +67,8 @@ module.exports = function ( args ) {
 
 						} catch ( parseError ) {
 
+							console.log( parseError );
+
 							dispatch( transform, done, parseError );
 
 						}
@@ -114,7 +116,7 @@ module.exports = function ( args ) {
 				 *  in the specified source file. We should log this error for future resolution.
 				 */
 				
-				console.log( result );
+				//console.log( result );
 
 				log.lock( function( methods ) {
 
@@ -150,52 +152,51 @@ module.exports = function ( args ) {
 				/**
 				 * truncated should hold an object [{ prefixes: [String], value: JSON }];
 				 */
+				var quotients;
+
 				try {
 
-					console.log( filename );
-
-					var quotients = { success: true, result: transform( path.resolve( filename ), result.ast ) };
-
-
+					quotients = { success: true, result: transform( path.resolve( filename ), result.ast ) };
 
 				} catch ( e ) {
 
-					quotients = { success: false, message: e.toString() };
+					quotients = { success: false, message: e.toString(), result: [ false ]};
+
+				} finally {
+
+					log.lock( function( methods ) {
+
+						var successes = quotients.result.reduce( function( b, a ) { return ( a !== false ) ? b + 1 : b; }, 0);
+
+						if ( quotients.success ) {
+
+						 	quotients.result.forEach( function( quotient, index ) {
+
+						 		if ( quotient ) {
+
+						 			methods.record( Date.now(), ( index === 0 ) ? filename : undefined, util.format('Parsed %d Object(s)', successes ) , "OK" );
+
+						 			methods.write( quotient.prefixes, quotient.value );
+
+						 		} else {
+
+						 			methods.record( Date.now(), filename, "An irrecoverable object was skipped during parsing.", "Skipped" );
+
+						 		}
+
+						 	});
+
+					 	} else {
+
+					 		methods.record( Date.now(), filename, quotients.message, "Parse" );
+
+					 	}
+
+					});
+
+					done( result );
 
 				}
-
-				log.lock( function( methods ) {
-
-					var successes = quotients.result.reduce( function( b, a ) { return ( a !== false ) ? b + 1 : b; }, 0);
-
-					if ( quotients.success ) {
-
-					 	quotients.result.forEach( function( quotient, index ) {
-
-					 		if ( quotient ) {
-
-					 			methods.record( 
-					 				Date.now(), ( index === 0 ) ? filename : undefined, util.format('Parsed %d Object(s)', successes ) , "OK" );
-
-					 			methods.write( quotient.prefixes, quotient.value );
-
-					 		} else {
-
-					 			methods.record( Date.now(), filename, "An irrecoverable object was skipped during parsing.", "Skipped" );
-
-					 		}
-
-					 	});
-
-				 	} else {
-
-				 		methods.record( Date.now(), filename, quotients.message, "OK" );
-
-				 	}
-
-				});
-
-				done( result );
 
 			}
 
