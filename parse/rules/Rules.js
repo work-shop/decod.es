@@ -1,21 +1,22 @@
 "use strict";
 
-var Rule = require('./Rule');
+var baseset = require('./Ruleset' );
 
-var ruleset = [
+function Rules( args, ruleset ) {
 
-	new Rule().when({inside: ["decodes", "io"], includes: [".py"] }).preform(),
+	if ( typeof ruleset === "undefined") ruleset = baseset( args );
+	
+	var RuleTester = function( filepath, ast ) {
 
-	new Rule().when({inside: ["decodes", "test"], includes: [".py"]}).preform(),
+		return ruleset.reduce( function( result, rule ) {
 
-	new Rule().when({inside: ["decodes"], includes: [".py"] }).preform(),
+			return ( result !== false ) ? result : rule.test( filepath, ast ); 
 
-	new Rule().when({inside: "examples", includes: [".py"]}).preform()
+		}, false );
 
-];
+	};
 
-function Rules() {
-
+	return RuleTester;
 }
 
 module.exports = Rules;
