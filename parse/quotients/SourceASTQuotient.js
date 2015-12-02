@@ -108,7 +108,7 @@ module.exports = function( args ) {
 
 		return division.definitions.map( function( quotient ) {
 
-			return { prefixes: prefix, value: quotient };
+			return { filepath: filepath, prefixes: prefix, value: quotient };
 
 		});
 	};
@@ -129,7 +129,7 @@ function closingLineFromQuotient( quotient ) {
 
 		return quotient.end;
 
-	} else if ( typeof quotient.definitions !== "undefined" ) {
+	} else if ( typeof quotient.definitions !== "undefined" && quotient.definitions.length ) {
 
 		return closingLineFromQuotient( quotient.definitions[ quotient.definitions.length - 1 ] );
 
