@@ -43,7 +43,7 @@ module.exports = function( args ) {
 
 	return [
 
-		new Rule().when( contains('.DS_Store') ).preform( skip ),
+		new Rule().when( or( contains('.DS_Store'), contains('__init__') ) ).preform( skip ),
 
 		new Rule().when( and( contains('.py'), or( within('test', 'test'), within('test', 'io') ) ) ).preform( skip ),
 
