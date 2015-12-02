@@ -119,7 +119,7 @@ module.exports = function( args ) {
 
 		var prefixes = prefixPath( filepath );
 
-		return [{ prefixes: prefixes, value: condensed }];
+		return [{ filepath: filepath, prefixes: prefixes, value: condensed }];
 	};
 };
 
