@@ -7,75 +7,42 @@ var util = require('util');
 
 var Logger = require('./Log');
 
-var rules = require('./rules/Rules' );
+var Rules = require('./rules/Rules' );
+
+var noop = function () {};
 
 function Walker( args, source, callback ) {
 
-	var file = require('./File')( args );
-
 	try {
 
-		var Log;
+		var rules = new Rules( args );
 
-		var Rules = new rules( args );
+		var Log = new Logger( countFilesSync( source = path.normalize( source ) ) );
 
-		var stats = fs.lstatSync( source = path.normalize( source ) );
+		var pathEmitter = walk( source );
 
-		if ( stats.isDirectory() ) {
-
-			Log = new Logger( countFilesSync( source ) );
-
-			var pathEmitter = walk( source );
-
-			pathEmitter.on( 'file', function( filename ) { 
-
-				file( filename, Log ).parse( Rules, function() {});
-
-			});
-
-			Log.conclude( function( methods ) { 
-
-				console.log( methods.print() ); 
-
-				//console.log( util.inspect( methods.json(), false, null, true ) );
-
-			} );
-
-
-		} else if ( stats.isFile() ) {
-
-
-
-			Log = new Logger( 1 );
-
-			file( source, Log ).parse( Rules, function() {} );
-
-			Log.conclude( function( methods )  { 
-
-				console.log(methods.print()); 
-				console.log( util.inspect( methods.json(), false, null, true )  );
-
-			} );
-
-
-
-
-		} else if ( stats.isSymbolicLink() ) {
+		pathEmitter.on( 'file', function( filename ) { 
 			/**
-			 * We've encountered a symbolic link. 
-			 * Probably just ignore this / print an error message,
+			 * 
+			 * We've encountered a file of some kind. What we'd like to do 
+			 * is ensure that the file matches one of our rules, and then
+			 * have it execute the rule on the match it encounters.
+			 * 
 			 */
 
-			console.log('symbolic link');
-			callback( null, source );
+			 rules( filename, Log, noop );
 
-		} else {
+			//file( filename, Log ).parse( Rules, noop );
 
-			console.log('weird path');
-			util.inspect( stats );
-			callback( stats );
+		});
 
-		}
+		Log.conclude( function( methods ) { 
+
+			console.log( methods.print() ); 
+
+			//console.log( util.inspect( methods.json(), false, null, true ) );
+
+		} );
 
 	} catch ( e ) {
 		/**
@@ -90,10 +57,28 @@ function Walker( args, source, callback ) {
 }
 
 function countFilesSync( source ) {
-	return walk.sync( source ).reduce( function(b,a) {
-		var stat = fs.lstatSync( a );
-		return ( stat.isFile() ) ? b + 1 : b;
-	}, 0);
+
+	var stats = fs.lstatSync( source );
+
+	if ( stats.isFile() ) {
+
+		return 1;
+
+	} else if ( stats.isDirectory() ) {
+
+		return walk.sync( source ).reduce( function(b,a) {
+
+			var stat = fs.lstatSync( a );
+			return ( stat.isFile() ) ? b + 1 : b;
+
+		}, 0);
+
+	} else {
+
+		throw new Error("SourceError: the specified path is neither a file nor a directory" );
+
+	}
+	
 }
 
 module.exports = Walker;
