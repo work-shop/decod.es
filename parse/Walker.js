@@ -5,11 +5,9 @@ var path = require('path');
 var walk = require('walkdir');
 var util = require('util');
 
-var Log = require('./Log')();
+var Logger = require('./Log');
 
-var SourceASTQuotient = require('./quotients/SourceASTQuotient' );
-var ExampleASTQuotient = require('./quotients/ExampleASTQuotient' );
-
+var rules = require('./rules/Rules' );
 
 function Walker( args, source, callback ) {
 
@@ -17,35 +15,50 @@ function Walker( args, source, callback ) {
 
 	try {
 
+		var Log;
+
+		var Rules = new rules( args );
+
 		var stats = fs.lstatSync( source = path.normalize( source ) );
 
 		if ( stats.isDirectory() ) {
+
+			Log = new Logger( countFilesSync( source ) );
 
 			var pathEmitter = walk( source );
 
 			pathEmitter.on( 'file', function( filename ) { 
 
-				file( filename, Log ).parse( function( err, result ) {
-
-					if ( err ) throw err;
-
-					console.log( util.inspect( result ) );
-
-				});
+				file( filename, Log ).parse( Rules, function() {});
 
 			});
 
-			//pathEmitter.on( 'end', function( ) { log.lock( function( methods ) { callback( null, log ); }); });
+			Log.conclude( function( methods ) { 
 
+				console.log( methods.print() ); 
+
+				//console.log( util.inspect( methods.json(), false, null, true ) );
+
+			} );
 
 
 		} else if ( stats.isFile() ) {
 
-			file( source, Log ).parse( SourceASTQuotient, function(  ) {
 
-				Log.lock( function( methods ) { console.log( methods.print() ); } );
 
-			});
+			Log = new Logger( 1 );
+
+			file( source, Log ).parse( Rules, function() {} );
+
+			Log.conclude( function( methods )  { 
+
+				console.log(methods.print()); 
+				console.log( util.inspect( methods.json(), false, null, true )  );
+
+			} );
+
+
+
 
 		} else if ( stats.isSymbolicLink() ) {
 			/**
@@ -74,6 +87,13 @@ function Walker( args, source, callback ) {
 
 	}
 
+}
+
+function countFilesSync( source ) {
+	return walk.sync( source ).reduce( function(b,a) {
+		var stat = fs.lstatSync( a );
+		return ( stat.isFile() ) ? b + 1 : b;
+	}, 0);
 }
 
 module.exports = Walker;
