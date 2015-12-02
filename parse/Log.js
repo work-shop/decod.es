@@ -3,9 +3,15 @@
 var Table = require('cli-table2');
 var Color = require('cli-color');
 
-function Log( args ) {
-	if ( !( this instanceof Log )) { return new Log( args ); }
+function Log( expecting ) {
+	if ( !( this instanceof Log )) { return new Log( expecting ); }
 	var self = this;
+
+	/**
+	 * This integer counts the number of processes
+	 * waiting for entry to the log structure.
+	 */
+	var entries = 0;
 
 	/**
 	 * This Boolean Mutex is used to manage
@@ -25,12 +31,14 @@ function Log( args ) {
 	 */
 	var recordStructure = new Table({
 		head: ["status", "file", "message", "timestamp"],
-		colWidths: [10,40,20,20],
+		colWidths: [10,80,20,20],
 		wordWrap: true,
 		style: {
 			head: []
 		}
 	});
+
+	var conclusion = function() {};
 
 	/**
 	 * this object contains the incremental parse context, as we traverse
@@ -59,14 +67,38 @@ function Log( args ) {
 			] );
 		},
 
-		write: function( JSONkeypath, JSONValue ) {
+		write: function( JSONKeypath, JSONValue ) {
+			function traverse( object, keyindex, value ) {
+
+				object = object || {};
+
+				if ( keyindex >= JSONKeypath.length ) { 
+
+					if ( Array.isArray( object ) ) {
+						object.push( value );
+						return object;
+					}
+
+					return [ value ]; 
+
+				} else {
+
+					object[ JSONKeypath[ keyindex ] ] = traverse( object[ JSONKeypath[ keyindex ] ], keyindex + 1, value);
+
+					return object;
+
+				}
+
+			}
+
+			return traverse( jsonStructure, 0, JSONValue );
 
 		},
 		print: function() {
 			return recordStructure.toString();
 		},
 		json: function() {
-
+			return jsonStructure;
 		}
 	};
 
@@ -87,15 +119,21 @@ function Log( args ) {
 
 			continuation( methods );
 
+			entries += 1;
+
 			locked = false;
 
-		} else {
+		} else {	
 
 			self.lock( continuation );
 
 		}
+
+		if ( entries === expecting ) { conclusion( methods ); }
 	};
 
+
+	self.conclude = function( continuation ) { conclusion = continuation; };
 
 }
 
@@ -104,6 +142,10 @@ function colorStatus( status ) {
 		case "OK": 
 			return Color.green.bold( status );
 
+		case "Skipped":
+			return Color.blue( status );
+
+		case "Parse":
 		case "Syntax":
 		case "PY IO":  
 			return Color.yellow.bold( status );
