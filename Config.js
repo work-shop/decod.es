@@ -31,12 +31,25 @@ var subparsers = parser.addSubparsers({
 	dest: "subcommand"
 });
 
-var parse = subparsers.addParser('parse', { addHelp: true});
+var parse = subparsers.addParser('parse', { addHelp: true });
 
 	parse.addArgument(
 		['source'],
 		{	
 			help: 'Specify the filestructure to parse',
+		}
+	);
+
+	/**
+	 * The dump command tells the parse process to ignore 
+	 * the firebase, and instead just dump the parse resultant
+	 * to STDOUT. 
+	 */
+	parse.addArgument(
+		['-d', '--dump'],
+		{
+			help: 'Ignore the firebase and dump the resultant to STDOUT.',
+			defaultValue: false
 		}
 	);
 
@@ -65,10 +78,14 @@ var parse = subparsers.addParser('parse', { addHelp: true});
 		}
 	);
 
+	/**
+	 * The base name command gives a system-specific prefix to
+	 * elide from the posted JSON.
+	 */
 	parse.addArgument(
 		[ '-b', '--base-name'],
 		{
-			help: 'Specify a directory base-name to reduce filepaths against in parsing.',
+			help: 'Specify a path prefix to elide from the parse resultant. Useful for removing a common prefix from all files.',
 			defaultValue: baseName
 		}
 	);
