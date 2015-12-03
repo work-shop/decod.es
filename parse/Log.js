@@ -143,18 +143,18 @@ function Log( expecting ) {
 function colorStatus( status ) {
 	switch( status ) {
 		case "OK": 
-			return Color.green.bold( status );
+			return Color.green( status );
 
 		case "Skipped":
 			return Color.blue( status );
 
 		case "Parse":
 		case "Syntax":
-		case "PY IO":  
-			return Color.yellow.bold( status );
+			return Color.yellow.bold.blink( status );
 
+		case "PY IO": 
 		case "JS IO": 
-			return Color.red.blink( status );
+			return Color.red.bold.blink( status );
 	}
 }
 
