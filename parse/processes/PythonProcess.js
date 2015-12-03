@@ -8,7 +8,7 @@ var python = require('python-shell');
 
 var pythonMain = "Main.py";
 
-var maxParseAttempts = 5;
+var maxParseAttempts = 50;
 
 /** 
  * We wrap the module in an argument environment
@@ -118,9 +118,6 @@ module.exports = function ( args ) {
 
 					} else {
 
-						console.log('error !== null');
-						console.log( util.inspect( error ) );
-
 						methods.record( Date.now(), filename, error.toString(), "PY IO" );
 
 					}
@@ -146,9 +143,6 @@ module.exports = function ( args ) {
 						methods.record( Date.now(), filename, result.context, "Syntax" );
 
 					} else {
-
-						console.log('result.success === false');
-						console.log( util.inspect( error ) );
 
 						methods.record( Date.now(), filename, result.message, "PY IO" );
 
