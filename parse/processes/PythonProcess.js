@@ -8,7 +8,7 @@ var python = require('python-shell');
 
 var pythonMain = "Main.py";
 
-var maxParseAttempts = 50;
+var maxParseAttempts = 5;
 
 /** 
  * We wrap the module in an argument environment
