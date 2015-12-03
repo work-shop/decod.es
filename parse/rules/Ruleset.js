@@ -1,6 +1,8 @@
 "use strict";
 
 
+var throttle = require( '../processes/ThrottleProcess' );
+
 var PythonProcess = require('../processes/PythonProcess');
 
 var SkipProcess = require('../processes/SkipProcess' );
@@ -36,9 +38,9 @@ module.exports = function( args ) {
 
 	var 	skip = compose( args )( SkipProcess, emptyQuotient ),
 
-		source = compose( args )( PythonProcess, sourceASTQuotient ),
+		source = compose( args )(  throttle( PythonProcess ), sourceASTQuotient ),
 
-		example = compose( args )( PythonProcess, exampleASTQuotient );
+		example = compose( args )( throttle( PythonProcess ), exampleASTQuotient );
 
 
 	return [
