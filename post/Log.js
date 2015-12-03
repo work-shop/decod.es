@@ -61,12 +61,16 @@ function Log( expecting ) {
 	var methods = {
 
 		record: function( timestamp, path, message, status ) {
-			recordStructure.push( [ 
-				path,
-				colorStatus( status ),
-				Color.white.bold( message ),
-				timestamp
-			] );
+			if ( status !== "OK" && status !== "Skipped" ) {
+
+				recordStructure.push( [ 
+					path,
+					colorStatus( status ),
+					Color.white.bold( message ),
+					timestamp
+				] );
+
+			}
 		},
 
 		write: function( JSONKeypath, JSONValue ) {
