@@ -5,7 +5,7 @@
  * 
  * @type {Number}
  */
-var limit = 5;
+var limit = require('os').cpus().length;
 
 /**
  * The number of currently active processes

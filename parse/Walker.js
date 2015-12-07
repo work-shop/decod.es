@@ -5,7 +5,7 @@ var path = require('path');
 var walk = require('walkdir');
 var util = require('util');
 
-var Logger = require('./Log');
+var Logger = require('../post/Push');
 
 var Rules = require('./rules/Rules' );
 
@@ -17,7 +17,7 @@ function Walker( args, source, callback ) {
 
 		var rules = new Rules( args );
 
-		var Log = new Logger( countFilesSync( source = path.normalize( source ) ) );
+		var Log = new Logger( args, countFilesSync( source = path.normalize( source ) ) );
 
 		walk( source ).on( 'file', function( filename ) { 
 
