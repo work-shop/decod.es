@@ -1,11 +1,14 @@
 "use strict";
 
-var Table = require('cli-table2');
-var Color = require('cli-color');
+var Firebase = require('firebase');
 
-function Log( args, expecting ) {
-	if ( !( this instanceof Log )) { return new Log( expecting ); }
+var noop = function() {};
+
+module.exports = function Push( args, expecting ) {
+	if (! (this instanceof Push) ) { return new Push( expecting ); }
 	var self = this;
+
+	var db = new Firebase( args.firebase );
 
 	/**
 	 * This integer counts the number of processes
@@ -23,22 +26,6 @@ function Log( args, expecting ) {
 	 * @type {Boolean}
 	 */
 	var locked = false;
-
-	/**
-	 * The record structure stores a linear order of stamps
-	 * recording the order, status, and message of each of the 
-	 * files encountered by walkers using this Log.
-	 * 
-	 * @type {Array}
-	 */
-	var recordStructure = new Table({
-		head: [ "file","status", "message", "timestamp"],
-		colWidths: [80,10,30,20],
-		wordWrap: true,
-		style: {
-			head: []
-		}
-	});
 
 	var conclusion = function() {};
 
@@ -60,16 +47,9 @@ function Log( args, expecting ) {
 	 */
 	var methods = {
 
-		record: function( timestamp, path, message, status ) {
+		record: noop,
 
-			recordStructure.push( [ 
-				path,
-				colorStatus( status ),
-				Color.white.bold( message ),
-				timestamp
-			] );
-
-		},
+		print: noop,
 
 		write: function( JSONKeypath, JSONValue ) {
 
@@ -96,12 +76,31 @@ function Log( args, expecting ) {
 
 			}
 
-			return traverse( jsonStructure, 0, JSONValue );
+			var payload = traverse( {}, 0, JSONValue );
+
+			var relative = db.child( pathOf( JSONKeypath ) );
+
+			relative.transaction( function ( object ) {
+				if ( Array.isArray( object ) ) {
+
+					object.push( JSONValue );
+
+					return object;
+
+				} else {
+
+					return JSONValue;
+
+				}
+
+			}, function ( err, status, result ) {
+
+				traverse( jsonStructure, 0, JSONValue );
+
+			}, false);
 
 		},
-		print: function() {
-			return recordStructure.toString();
-		},
+
 		json: function() {
 			return jsonStructure;
 		}
@@ -140,24 +139,10 @@ function Log( args, expecting ) {
 
 	self.conclude = function( continuation ) { conclusion = continuation; };
 
+};
+
+function pathOf( array ) {
+	return array.join('/');
 }
 
-function colorStatus( status ) {
-	switch( status ) {
-		case "OK": 
-			return Color.green( status );
 
-		case "Skipped":
-			return Color.blue( status );
-
-		case "Parse":
-		case "Syntax":
-			return Color.yellow.bold.blink( status );
-
-		case "PY IO": 
-		case "JS IO": 
-			return Color.red.bold.blink( status );
-	}
-}
-
-module.exports = Log;
