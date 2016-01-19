@@ -104,6 +104,12 @@ function Log( args, expecting ) {
 		},
 		json: function() {
 			return jsonStructure;
+		},
+		close: function() {
+
+		},
+		expect: function( update ) {
+			expecting = update( expecting );
 		}
 	};
 
@@ -116,25 +122,9 @@ function Log( args, expecting ) {
 	 * @return {()}              [description]
 	 */
 	self.lock = function( continuation ) {
-		while ( locked );
+		
+		continuation( methods );
 
-		if ( !locked) {
-
-			locked = true;
-
-			continuation( methods );
-
-			entries += 1;
-
-			locked = false;
-
-		} else {	
-
-			self.lock( continuation );
-
-		}
-
-		if ( entries === expecting ) { conclusion( methods ); }
 	};
 
 

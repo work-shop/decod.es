@@ -16,7 +16,7 @@ var tempateDir = path.join( process.cwd(), 'static' );
 
 var baseName = 'test';
 
-var baseOutput = "db.json";
+var baseOutput = 'db.json';
 
 
 
