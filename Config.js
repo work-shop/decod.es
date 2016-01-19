@@ -12,9 +12,11 @@ var firebaseURL = "https://incandescent-torch-1447.firebaseio.com/";
 
 var parserURL = path.join( __dirname, '..', 'decod.es-parser' );
 
-var tempateDir = path.join( process.cwd(), 'templates' );
+var tempateDir = path.join( process.cwd(), 'static' );
 
-var baseName = 'decodes';
+var baseName = 'test';
+
+var baseOutput = "db.json";
 
 
 
@@ -90,6 +92,16 @@ var parse = subparsers.addParser('parse', { addHelp: true });
 		}
 	);
 
+	parse.addArgument(
+		['-o', '--outfile'],
+		{
+			help: 'Specify a file to dump parse output in. The file will be overwritten, if it exists.',
+			nargs: 1,
+			defaultValue: baseOutput
+
+		}
+	);
+
 
 /**
  * The build flag tells the system to
@@ -116,6 +128,14 @@ var build = subparsers.addParser('build', { addHelp: true });
 		{
 			help: 'Specify a set of swig templates to pull from when constructing the output.',
 			defaultValue: tempateDir
+		}
+	);
+
+	build.addArgument(
+		['-i', '--infile' ],
+		{
+			help: 'Read a parsefile to build the site.',
+			nargs: 1
 		}
 	);
 
