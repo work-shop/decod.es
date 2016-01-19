@@ -1,11 +1,8 @@
 "use strict";
 
-var fs = require('fs');
-var path = require('path');
 var walk = require('walkdir');
-var util = require('util');
 
-var Logger = require('../post/Push');
+var Pusher = require('../post/Push');
 
 var Rules = require('./rules/Rules' );
 
@@ -17,20 +14,19 @@ function Walker( args, source, callback ) {
 
 		var rules = new Rules( args );
 
-		var Log = new Logger( args, countFilesSync( source = path.normalize( source ) ) );
+		var Push = new Pusher( args );
 
 		walk( source ).on( 'file', function( filename ) { 
 
-			 rules( filename, Log, noop );
+			 rules( filename, Push, noop );
 
 		});
 
-		Log.conclude( function( methods ) { 
+		Push.conclude( function( methods ) { 
 
-			console.log( methods.print() ); 
-
-			//console.log( util.inspect( methods.json(), false, null, true ) );
-
+			methods.close();
+			
+			callback( null, methods );
 
 		} );
 
@@ -40,31 +36,6 @@ function Walker( args, source, callback ) {
 
 	}
 
-}
-
-function countFilesSync( source ) {
-
-	var stats = fs.lstatSync( source );
-
-	if ( stats.isFile() ) {
-
-		return 1;
-
-	} else if ( stats.isDirectory() ) {
-
-		return walk.sync( source ).reduce( function(b,a) {
-
-			var stat = fs.lstatSync( a );
-			return ( stat.isFile() ) ? b + 1 : b;
-
-		}, 0);
-
-	} else {
-
-		throw new Error("SourceError: the specified path is neither a file nor a directory" );
-
-	}
-	
 }
 
 module.exports = Walker;
