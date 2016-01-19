@@ -10,6 +10,12 @@ module.exports = function( args ) {
 	return function exampleASTQuotient( filepath, ast ) {
 		var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
 
+		function determineFilename( filepath ) {
+			var splitPath = filepath.split( path.sep );
+
+			return splitPath[ splitPath.length - 1 ];
+		}
+
 		function determineStartLine( endLine ) {
 			if ( endLine > 0 ) {
 				var delimiter = file[ endLine - 1 ].trim();
@@ -117,9 +123,18 @@ module.exports = function( args ) {
 
 		var condensed = condenseQuotient( tagAST( ast ) );
 
+		condensed.name = determineFilename( filepath );
+
 		var prefixes = prefixPath( filepath );
 
-		return [{ filepath: filepath, prefixes: prefixes, value: condensed }];
+		return [
+			{ 
+				filepath: filepath, 
+				schema: ['schema'].concat(prefixes).concat( [condensed.name] ),
+				content: ['content'],
+				value: condensed
+			}
+		];
 	};
 };
 

@@ -187,6 +187,8 @@ module.exports = function ( args ) {
 
 						if ( quotients.success ) {
 
+							methods.expect( function( n ) { console.log( n ); return n + successes; } );
+
 						 	quotients.result.forEach( function( quotient, index ) {
 
 						 		if ( quotient ) {
@@ -198,7 +200,7 @@ module.exports = function ( args ) {
 						 				"OK" 
 						 			);
 
-						 			methods.write( quotient.prefixes, quotient.value );
+						 			methods.write( quotient.schema, quotient.content, quotient.value );
 
 						 		} else {
 

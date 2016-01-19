@@ -6,6 +6,8 @@ var path = require( 'path' );
 
 var match = require('../../Match');
 
+
+
 /**
  * Given a full filepath and an AST representing the contents of
  * that filepath, a quotient term return a collapses the AST according
@@ -20,6 +22,8 @@ var match = require('../../Match');
  * @return {[type]}          [description]
  */
 module.exports = function( args ) {
+
+	var determineReferences = require('./operations/ReferenceSynthesizer')( args );
 
 	return function sourceASTQuotient( filepath, ast ) {
 		var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
@@ -42,8 +46,15 @@ module.exports = function( args ) {
 
 							quotient.name = ast.name;
 
-							if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
+							if ( typeof ast.decorators !== "undefined" ) { 
+
+								quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+
+							}
+
 							quotient.documentation = ast.docstring;
+
+							//quotient.references = determineReferences( ast );
 
 							quotient.start = ast.position.line;
 							quotient.end = closingLineFromAST( ast );
@@ -60,7 +71,14 @@ module.exports = function( args ) {
 							quotient.definedIn = filepath;
 							quotient.documentation = ast.docstring;
 
-							if ( typeof ast.decorators !== "undefined" ) { quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ); }
+							if ( typeof ast.decorators !== "undefined" ) { 
+							
+								quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+
+							}
+
+							//quotient.references = determineReferences( ast.body );
+
 							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
 
 							quotient.start = ast.position.line;
@@ -101,16 +119,27 @@ module.exports = function( args ) {
 		}
 
 
-		var prefix = prefixPath( filepath );
+		var prefixes = prefixPath( filepath );
 
 		var division = divideAST( ast );
 
 
 		return division.definitions.map( function( quotient ) {
+			/**
+			 * This definition
+			 */
+			return [
+				{ 
+					filepath: filepath, 
+					schema: ['schema'].concat(prefixes).concat( [quotient.name] ),
+					content: ['content'],
+					value: quotient
+				}
+			];
 
-			return { filepath: filepath, prefixes: prefix, value: quotient };
+			//return [{ filepath: filepath, prefixes: prefix, value: quotient }];
 
-		});
+		}).reduce( function (a,b) { return a.concat(b); }, []);
 	};
 };
 
