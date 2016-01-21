@@ -6,7 +6,7 @@ var uuid = require('node-uuid');
 
 var Firebase = require('firebase');
 
-var Log = require('./Log');
+var Log = require('./ParseLog');
 
 
 module.exports = function Push( args, expecting ) {
@@ -95,11 +95,12 @@ module.exports = function Push( args, expecting ) {
 			try {
 
 				// logic to consistently update the schema and content places for this object.
-			
+
+				var uuidKey = uuid.v4();
 
 				var schemaString = pathOf( schemaPath );
 
-				var uuidKey = uuid.v4();
+				var contentString = pathOf( contentPath.concat( [uuidKey] ) );
 
 				db.once('value', function( snapshot ) {
 
@@ -107,16 +108,24 @@ module.exports = function Push( args, expecting ) {
 
 						var relative = snapshot.child( schemaString );
 
-						uuidKey = relative.val();
+						uuidKey = relative.val().key;
 
-						var contentString = pathOf( contentPath.concat( [uuidKey] ) );
+						contentString = pathOf( contentPath.concat( [uuidKey] ) );
 
 						db.child( contentString ).once('value', function( snapshot ) {
 
 							if ( !equal(snapshot.val(), value) ) { 
-								// Strict overwrite semantics
 
-								db.child( contentString ).set( value, conclude);
+								db.child( contentString ).set(value, function( err ) {
+									if ( err ) throw err;
+
+									db.child( schemaString ).set( {key: uuidKey, timestamp: Date.now()}, conclude );
+
+								});
+
+							} else {
+
+								conclude();
 
 							}
 
@@ -124,17 +133,18 @@ module.exports = function Push( args, expecting ) {
 
 					} else {
 
-						db.child( schemaString ).set( uuidKey, function( err ) {
+						db.child( contentString ).set(value, function( err ) {
 
-							if ( err ) { throw err; }
+							if ( err ) throw err;
 
-							var contentString = pathOf( contentPath.concat( [uuidKey] ) );
-
-							db.child( contentString ).set(value, conclude);
+							db.child( schemaString ).set( {key: uuidKey, timestamp: Date.now()}, conclude);
 
 						});
 
 					}
+
+
+					
 				});
 				
 

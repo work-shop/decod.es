@@ -3,8 +3,8 @@
 var Table = require('cli-table2');
 var Color = require('cli-color');
 
-function Log( args, expecting ) {
-	if ( !( this instanceof Log )) { return new Log( expecting ); }
+function ParseLog( args, expecting ) {
+	if ( !( this instanceof ParseLog )) { return new ParseLog( args, expecting ); }
 	var self = this;
 
 	/**
@@ -150,4 +150,4 @@ function colorStatus( status ) {
 	}
 }
 
-module.exports = Log;
+module.exports = ParseLog;
