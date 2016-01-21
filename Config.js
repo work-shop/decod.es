@@ -132,6 +132,15 @@ var build = subparsers.addParser('build', { addHelp: true });
 	);
 
 	build.addArgument(
+		['-w','--watch'],
+		{	
+			action: "storeTrue",
+			help: 'Set the build process to run as a server, listening to the specified firebase url for changes',
+			defaultValue: false
+		}
+	);
+
+	build.addArgument(
 		['-i', '--infile' ],
 		{
 			help: 'Read a parsefile to build the site.',
