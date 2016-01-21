@@ -8,6 +8,8 @@ module.exports = function( pathComponents ) {
 
 function uniform( component ) {
 
-	return component.replace( /\s|\.|\$/g, '-').toLowerCase();
+	// make the first group ([a-z]|[A-Z]) to match consecutive series of caps as well...
 
-};
+	return component.replace( /([a-z])([A-Z])/g, "$1-$2" ).replace( /\s|\.|\$/g, '-').toLowerCase();
+
+}

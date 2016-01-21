@@ -71,10 +71,6 @@ module.exports = function Push( args, expecting ) {
 
 		write: function( schemaPath, contentPath, value ) {
 
-			schemaPath = normalizePath( schemaPath );
-
-			contentPath = normalizePath( contentPath );
-
 			function conclude( err ) {
 				if ( err ) { throw err; }
 
