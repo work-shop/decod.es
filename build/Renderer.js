@@ -10,11 +10,11 @@ var swig = require('swig');
 
 var async = require('async');
 
-var individual = "individual.html";
+var individual = "children";
 
-var index = "index.html";
+var index = "index";
 
-var Color = require('cli-color');
+var suffix = ".html";
 
 var overloadedFor = require('./extensions/For')(['_url', '_name', '_id', '_timestamp']);
 
@@ -37,12 +37,8 @@ module.exports = function Renderer( args ) {
 
 				var templateLocation = existing[ 0 ];
 
-				
-
 				fs.ensureFile( outputLocation, function ( err ) {
 					if ( err ) {
-
-						console.log('error with ensureFile');
 
 						log.addLine( 
 							prune( args.templates, templateLocation ),  
@@ -67,8 +63,6 @@ module.exports = function Renderer( args ) {
 
 									if ( err ) {
 
-										console.log( 'error' + err.message );
-
 										log.addLine( 
 											prune( args.templates, templateLocation ),  
 											prune( args.destination, outputLocation ),
@@ -78,8 +72,6 @@ module.exports = function Renderer( args ) {
 										);
 
 									} else {
-
-										console.log( 'done!' );
 
 										log.addLine( 
 											prune( args.templates, templateLocation ),  
@@ -97,8 +89,6 @@ module.exports = function Renderer( args ) {
 							);
 
 						} catch ( err ) {
-
-							console.log('error'); 
 
 							log.addLine( 
 								prune( args.templates, templateLocation ),  
@@ -121,7 +111,7 @@ module.exports = function Renderer( args ) {
 				log.addLine( 
 					"",  
 					prune( args.destination, outputLocation ),
-					"Template",
+					"Skipped",
 					"No Template Specified!",
 					Date.now()
 				);
@@ -135,19 +125,6 @@ module.exports = function Renderer( args ) {
 	};
 
 	/**
-	 * given a schema path to render, this routine returns the relative url for the resulting
-	 * webpage.
-	 * 
-	 * @param  {[type]} path [description]
-	 * @return {[type]}      [description]
-	 */
-	function resolveUrl( pathComponents ) {
-
-		return '/' + pathComponents.join( '/' );
-
-	}
-
-	/**
 	 * given a schema path to render, this routine returns the path, based at args.templates
 	 * that should be used to render this file.
 	 * 
@@ -156,18 +133,36 @@ module.exports = function Renderer( args ) {
 	 */
 	function resolveTemplatePaths( pathComponents ) {
 
-		if ( pathComponents.length === 0 ) {
+			var templates = [];
 
-			return [ path.join( args.templates, 'index.html' ) ];
+			for (var i = pathComponents.length - 1; i >= 0; i-- ) {
 
-		} else {
+				templates.push(
+					path.join( 
+						args.templates, 
+						pathComponents.slice( 0, i ).join( path.sep ), 
+						repeat( individual, pathComponents.length - i ).join('.') + suffix )
+				);
 
-			return [ 
-				path.join( args.templates, pathComponents.join( path.sep ), index ),
-				path.join( args.templates, pathComponents.slice(0, pathComponents.length - 1 ).join( path.sep ), individual ),
-			];
+			}
 
-		}
+			templates.push( path.join( args.templates, pathComponents.join( path.sep ), index + suffix ) );
+
+			return templates.reverse();
+
+
+		// if ( pathComponents.length === 0 ) {
+
+		// 	return [ path.join( args.templates, index + suffix ) ];
+
+		// } else {
+
+		// 	return [ 
+		// 		path.join( args.templates, pathComponents.join( path.sep ), index + suffix ),
+		// 		path.join( args.templates, pathComponents.slice(0, pathComponents.length - 1 ).join( path.sep ), individual + suffix ),
+		// 	];
+
+		// }
 
 		
 
@@ -186,25 +181,30 @@ module.exports = function Renderer( args ) {
 
 	}
 
-	function prune( subpath, superpath ) {
-		var keep = last( subpath.split( path.sep ) );
-
-		return keep + superpath.substring( subpath.length );
-	}
-
-	function buildContext( context ) {
-		context.url = function( item ) {
-			return item._url;
-		};
-
-		context.name = function( item ) {
-			return item._name;
-		};
-
-		return context;
-	}
-
 };
+
+
+function prune( subpath, superpath ) {
+	var keep = last( subpath.split( path.sep ) );
+
+	return keep + superpath.substring( subpath.length );
+}
+
+function buildContext( context ) {
+	context.url = function( item ) {
+		return item._url;
+	};
+
+	context.name = function( item ) {
+		return item._name;
+	};
+
+	return context;
+}
+
+function repeat( value, n ) {
+	return Array.apply( null, new Array( n ) ).map( function() { return value } ); 
+}
 
 function last( arr ) {
 	return arr[ arr.length - 1 ];

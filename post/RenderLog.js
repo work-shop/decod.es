@@ -43,6 +43,9 @@ function RenderLog( args, expecting ) {
 
 function colorStatus( status ) {
 	switch( status ) {
+		case "Skipped":
+			return Color.blue( status );
+			
 		case "OK": 
 			return Color.green( status );
 
