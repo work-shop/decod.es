@@ -6,7 +6,7 @@ var path = require( 'path' );
 
 var match = require('../../Match');
 
-
+var prune = require('./operations/PruneQuotient');
 
 /**
  * Given a full filepath and an AST representing the contents of
@@ -52,12 +52,19 @@ module.exports = function( args ) {
 
 							}
 
+							
+
 							quotient.documentation = ast.docstring;
+
+							
+							
 
 							//quotient.references = determineReferences( ast );
 
 							quotient.start = ast.position.line;
+
 							quotient.end = closingLineFromAST( ast );
+
 							quotient.code = false;
 
 							quotient.code = file.slice( quotient.start, quotient.end + 1 );
@@ -68,10 +75,16 @@ module.exports = function( args ) {
 						function() {
 
 							quotient.name = ast.name;
-							quotient.definedIn = filepath;
-							quotient.documentation = ast.docstring;
 
-							if ( typeof ast.decorators !== "undefined" ) { 
+							quotient.definedIn = filepath;
+
+							
+
+							quotient.documentation = ast.docstring;
+								
+							
+
+							if ( typeof ast.decorators !== "undefined" && ast.decorators.length > 0 ) { 
 							
 								quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
 
@@ -79,9 +92,14 @@ module.exports = function( args ) {
 
 							//quotient.references = determineReferences( ast.body );
 
+							
+
 							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
 
+							
+
 							quotient.start = ast.position.line;
+
 							quotient.end = closingLineFromQuotient( quotient );
 
 						}),
@@ -90,17 +108,26 @@ module.exports = function( args ) {
 						function() {
 
 							quotient.definedIn = filepath;
-							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
 							quotient.start = ast.position.line;
 							quotient.end = closingLineFromQuotient( quotient );
+
+							if ( ast.docstring !== null ) {
+
+								quotient.documentation = ast.docstring;
+								
+							}
+
+							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
+							
 						}),
 
 					match.expr( match.otherwise, function( ) { quotient = null; } )
 				]
 			);
-			
+
 			return quotient;
 		}
+			
 
 		function prefixPath( filepath ) {
 
@@ -121,13 +148,13 @@ module.exports = function( args ) {
 
 		var prefixes = prefixPath( filepath );
 
-		var division = divideAST( ast );
-
+		var division = prune( divideAST( ast ) );
 
 		return division.definitions.map( function( quotient ) {
 			/**
 			 * This definition
 			 */
+			//console.log( quotient );
 			return [
 				{ 
 					filepath: filepath, 
