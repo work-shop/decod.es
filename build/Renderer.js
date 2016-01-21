@@ -133,38 +133,22 @@ module.exports = function Renderer( args ) {
 	 */
 	function resolveTemplatePaths( pathComponents ) {
 
-			var templates = [];
+		var templates = [];
 
-			for (var i = pathComponents.length - 1; i >= 0; i-- ) {
+		for (var i = pathComponents.length - 1; i >= 0; i-- ) {
 
-				templates.push(
-					path.join( 
-						args.templates, 
-						pathComponents.slice( 0, i ).join( path.sep ), 
-						repeat( individual, pathComponents.length - i ).join('.') + suffix )
-				);
+			templates.unshift(
+				path.join( 
+					args.templates, 
+					pathComponents.slice( 0, i ).join( path.sep ), 
+					repeat( individual, pathComponents.length - i ).join('.') + suffix )
+			);
 
-			}
+		}
 
-			templates.push( path.join( args.templates, pathComponents.join( path.sep ), index + suffix ) );
+		templates.unshift( path.join( args.templates, pathComponents.join( path.sep ), index + suffix ) );
 
-			return templates.reverse();
-
-
-		// if ( pathComponents.length === 0 ) {
-
-		// 	return [ path.join( args.templates, index + suffix ) ];
-
-		// } else {
-
-		// 	return [ 
-		// 		path.join( args.templates, pathComponents.join( path.sep ), index + suffix ),
-		// 		path.join( args.templates, pathComponents.slice(0, pathComponents.length - 1 ).join( path.sep ), individual + suffix ),
-		// 	];
-
-		// }
-
-		
+		return templates;		
 
 	}
 
