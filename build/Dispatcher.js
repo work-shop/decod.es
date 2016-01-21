@@ -135,7 +135,7 @@ function unify( schema, content, path ) {
 
 				Object.defineProperty( schema[ key ], '_name', {
 					enumerable: true,
-		  			value: key
+		  			value: (typeof schema[key].name !== "undefined") ? schema[key].name : key
 				});
 
 			}

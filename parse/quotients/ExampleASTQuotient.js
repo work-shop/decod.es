@@ -6,6 +6,8 @@ var path = require( 'path' );
 
 var match = require('../../Match');
 
+var canonicalize = require('./operations/CanonicalizeResource');
+
 module.exports = function( args ) {
 	return function exampleASTQuotient( filepath, ast ) {
 		var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
@@ -130,8 +132,8 @@ module.exports = function( args ) {
 		return [
 			{ 
 				filepath: filepath, 
-				schema: ['schema'].concat(prefixes).concat( [condensed.name] ),
-				content: ['content'],
+				schema: canonicalize( ['schema'].concat(prefixes).concat( [condensed.name] ) ),
+				content: canonicalize( ['content'] ),
 				value: condensed
 			}
 		];

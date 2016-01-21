@@ -8,6 +8,8 @@ var match = require('../../Match');
 
 var prune = require('./operations/PruneQuotient');
 
+var canonicalize = require('./operations/CanonicalizeResource');
+
 /**
  * Given a full filepath and an AST representing the contents of
  * that filepath, a quotient term return a collapses the AST according
@@ -158,8 +160,8 @@ module.exports = function( args ) {
 			return [
 				{ 
 					filepath: filepath, 
-					schema: ['schema'].concat(prefixes).concat( [quotient.name] ),
-					content: ['content'],
+					schema: canonicalize( ['schema'].concat(prefixes).concat( [quotient.name] ) ),
+					content: canonicalize( ['content'] ),
 					value: quotient
 				}
 			];
