@@ -8,6 +8,8 @@ var match = require('../../Match');
 
 var canonicalize = require('./operations/CanonicalizeResource');
 
+var extract = require('./operations/ExtractFields');
+
 module.exports = function( args ) {
 	return function exampleASTQuotient( filepath, ast ) {
 		var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
@@ -61,7 +63,12 @@ module.exports = function( args ) {
 					match.expr( match.matchtype( 'Module' ),
 						function() {
 
-							quotient.documentation = ast.docstring;
+							quotient.required = extract.required( ast.docstring );
+
+							quotient.result = extract.result( ast.docstring );
+
+							quotient.documentation = extract.introduction( ast.docstring );
+							
 							quotient.blocks = ast.body.map( tagAST ).filter( function( x ) { return x !== null; });
 
 						}),
