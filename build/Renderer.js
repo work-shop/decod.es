@@ -1,6 +1,6 @@
 "use strict";
 
-var util = require( 'util' );
+
 
 var path = require('path');
 
@@ -10,15 +10,25 @@ var swig = require('swig');
 
 var async = require('async');
 
+
+
+var overloadedFor = require('./extensions/For')(['_url', '_name', '_id', '_timestamp']);
+
+var utilities = require('../Util');
+
+
+
 var individual = "children";
 
 var index = "index";
 
 var suffix = ".html";
 
-var overloadedFor = require('./extensions/For')(['_url', '_name', '_id', '_timestamp']);
+
 
 swig.setTag('for', overloadedFor.parse, overloadedFor.compile, overloadedFor.ends );
+
+
 
 module.exports = function Renderer( args ) {
 
@@ -41,8 +51,8 @@ module.exports = function Renderer( args ) {
 					if ( err ) {
 
 						log.addLine( 
-							prune( args.templates, templateLocation ),  
-							prune( args.destination, outputLocation ),
+							utilities.prune( args.templates, templateLocation ),  
+							utilities.prune( args.destination, outputLocation ),
 							"IO",
 							err.message,
 							Date.now()
@@ -64,8 +74,8 @@ module.exports = function Renderer( args ) {
 									if ( err ) {
 
 										log.addLine( 
-											prune( args.templates, templateLocation ),  
-											prune( args.destination, outputLocation ),
+											utilities.prune( args.templates, templateLocation ),  
+											utilities.prune( args.destination, outputLocation ),
 											"IO",
 											err.message,
 											Date.now()
@@ -74,8 +84,8 @@ module.exports = function Renderer( args ) {
 									} else {
 
 										log.addLine( 
-											prune( args.templates, templateLocation ),  
-											prune( args.destination, outputLocation ),
+											utilities.prune( args.templates, templateLocation ),  
+											utilities.prune( args.destination, outputLocation ),
 											"OK",
 											"",
 											Date.now()
@@ -91,8 +101,8 @@ module.exports = function Renderer( args ) {
 						} catch ( err ) {
 
 							log.addLine( 
-								prune( args.templates, templateLocation ),  
-								prune( args.destination, outputLocation ),
+								utilities.prune( args.templates, templateLocation ),  
+								utilities.prune( args.destination, outputLocation ),
 								"Template",
 								err.message,
 								Date.now()
@@ -110,7 +120,7 @@ module.exports = function Renderer( args ) {
 
 				log.addLine( 
 					"",  
-					prune( args.destination, outputLocation ),
+					utilities.prune( args.destination, outputLocation ),
 					"Skipped",
 					"No Template Specified!",
 					Date.now()
@@ -141,7 +151,7 @@ module.exports = function Renderer( args ) {
 				path.join( 
 					args.templates, 
 					pathComponents.slice( 0, i ).join( path.sep ), 
-					repeat( individual, pathComponents.length - i ).join('.') + suffix )
+					utilities.repeat( individual, pathComponents.length - i ).join('.') + suffix )
 			);
 
 		}
@@ -167,13 +177,6 @@ module.exports = function Renderer( args ) {
 
 };
 
-
-function prune( subpath, superpath ) {
-	var keep = last( subpath.split( path.sep ) );
-
-	return keep + superpath.substring( subpath.length );
-}
-
 function buildContext( context ) {
 	context.url = function( item ) {
 		return item._url;
@@ -186,11 +189,5 @@ function buildContext( context ) {
 	return context;
 }
 
-function repeat( value, n ) {
-	return Array.apply( null, new Array( n ) ).map( function() { return value } ); 
-}
 
-function last( arr ) {
-	return arr[ arr.length - 1 ];
-}
 
