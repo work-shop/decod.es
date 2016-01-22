@@ -4,11 +4,15 @@ var fs = require('fs');
 
 var path = require( 'path' );
 
+var utilities = require('../../Util');
+
 var match = require('../../Match');
 
 var prune = require('./operations/PruneQuotient');
 
 var canonicalize = require('./operations/CanonicalizeResource');
+
+var references = require('./operations/CollectReferences');
 
 /**
  * Given a full filepath and an AST representing the contents of
@@ -24,8 +28,6 @@ var canonicalize = require('./operations/CanonicalizeResource');
  * @return {[type]}          [description]
  */
 module.exports = function( args ) {
-
-	var determineReferences = require('./operations/ReferenceSynthesizer')( args );
 
 	return function sourceASTQuotient( filepath, ast ) {
 		var file = fs.readFileSync( filepath, 'utf8' ).split('\n');
@@ -55,14 +57,8 @@ module.exports = function( args ) {
 							}
 
 							
-
 							quotient.documentation = ast.docstring;
-
-							
-							
-
-							//quotient.references = determineReferences( ast );
-
+								
 							quotient.start = ast.position.line;
 
 							quotient.end = closingLineFromAST( ast );
@@ -81,10 +77,8 @@ module.exports = function( args ) {
 							quotient.definedIn = filepath;
 
 							
-
 							quotient.documentation = ast.docstring;
-								
-							
+														
 
 							if ( typeof ast.decorators !== "undefined" && ast.decorators.length > 0 ) { 
 							
@@ -92,14 +86,13 @@ module.exports = function( args ) {
 
 							}
 
-							//quotient.references = determineReferences( ast.body );
-
-							
+							quotient.references = {
+								classes: references.classes( ast ),
+								functions: references.functions( ast )
+							};
 
 							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
-
 							
-
 							quotient.start = ast.position.line;
 
 							quotient.end = closingLineFromQuotient( quotient );
@@ -159,7 +152,7 @@ module.exports = function( args ) {
 			//console.log( quotient );
 			return [
 				{ 
-					filepath: filepath, 
+					filepath: utilities.prune( args.source, filepath), 
 					schema: canonicalize( ['schema'].concat(prefixes).concat( [quotient.name] ) ),
 					content: canonicalize( ['content'] ),
 					value: quotient
