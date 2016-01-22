@@ -2,10 +2,16 @@
 
 var path = require('path');
 
+
+
 function noop() {}
 
 function concat( a,b ) {
 	return a.concat( b );
+}
+
+function first( arr ) {
+	return arr[0];
 }
 
 function last( arr ) {
@@ -26,14 +32,27 @@ function compose( g, f ) {
 	};
 }
 
+function empty( x ) {
+	return x === "";
+}
+
 function not( x ) { return !x; }
+
+
+function nullableWithDefault( value, andThen, alternate ) {
+	if ( value === null ) return alternate;
+	else return andThen( value );
+}
 
 module.exports = {
 	noop: noop,
 	prune: prune,
 	last: last,
+	first: first,
 	repeat: repeat,
 	concat: concat,
 	compose: compose,
-	not: not
+	not: not,
+	nullableWithDefault: nullableWithDefault,
+	empty: empty
 };
