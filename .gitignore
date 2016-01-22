@@ -16,6 +16,7 @@ node_modules
 .archive
 test
 db.json
+output
 
 npm-debug.log
 
