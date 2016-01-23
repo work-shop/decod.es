@@ -18,8 +18,6 @@ module.exports = function Push( args, expecting ) {
 	var log = new Log( args, expecting );
 
 	var db = new Firebase( args.firebase );
-	
-	//var db = require('./FirebaseHttp')( args );
 
 	/**
 	 * This integer counts the number of processes
@@ -141,7 +139,7 @@ module.exports = function Push( args, expecting ) {
 							db.child( schemaString ).set( {key: uuidKey, timestamp: Date.now()}, function( err ) {
 								if ( err ) throw err;
 
-								if ( typeof nameString !== undefined ) {
+								if ( typeof nameString !== "undefined" ) {
 
 									db.child( nameString ).set( nameValue, conclude);
 
