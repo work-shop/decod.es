@@ -200,7 +200,7 @@ module.exports = function ( args ) {
 						 				"OK" 
 						 			);
 
-						 			methods.write( quotient.schema, quotient.content, quotient.value );
+						 			methods.write( quotient.schema, quotient.content, quotient.names, quotient.value );
 
 						 		} else {
 
