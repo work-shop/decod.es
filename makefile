@@ -5,7 +5,7 @@ OUTPUT-DIR = output
 
 
 build:
-	./decodes build $(OUTPUT-DIR)
+	./decodes build $(OUTPUT-DIR) --templates="../decod.es-templates"
 
 serve:
 	http-server $(OUTPUT-DIR) &
