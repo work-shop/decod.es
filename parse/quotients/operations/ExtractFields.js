@@ -5,11 +5,35 @@ var utilities = require('../../../Util');
 var nonempty = utilities.compose( utilities.not, utilities.empty );
 
 module.exports = {
+	description: function( docstring ) {
+
+		return extractValue(  /\s*([^:]*):/g.exec( docstring ) );
+
+	},
+	params: function( docstring ){
+
+		return extractRSTStrings( /:param\s*([\S]*):\s*([^:]*)\s*:?/g, docstring );
+
+	},
+	types: function( docstring ) {
+
+		return extractRSTStrings( /:type\s*([\S]*):\s*([^:]*)\s*:?/g, docstring );
+
+	},
+	rvalue: function( docstring ) {
+
+		return extractRSTStrings( /:result\s*([\S]*):\s*([^:]*)\s*:?/g, docstring );
+
+	},
+	rtype: function( docstring ) {
+
+		return extractRSTStrings( /:rtype\s*([\S]*):\s*([^:]*)\s*:?/g, docstring );
+
+	},
+
 	required: function( docstring ) {
 
-		var execResult = /required:\s*([\s\S]*)\s*result:/.exec( docstring );
-
-		return extractValue( execResult );
+		return extractValue( /required:\s*([\s\S]*)\s*result:/.exec( docstring ) );
 
 	},
 	result: function( docstring ) {
@@ -34,3 +58,32 @@ function extractValue( value ) {
 		null 
 	);
 }
+
+function extractRSTStrings( pattern, string ) {
+
+		var 	results = {},
+			match;
+
+		while ( (match = pattern.exec( string ) ) !== null ) {
+
+			if ( match[1] === "" ) {
+
+				results = match[ 2 ];
+
+			} else {
+
+				results[ match[ 1 ] ] = match[ 2 ];
+
+			}
+
+		}
+
+		return results;
+
+}
+
+
+
+
+
+

@@ -14,6 +14,8 @@ var canonicalize = require('../../route/CanonicalizeRoute');
 
 var references = require('./operations/CollectReferences');
 
+var fields = require('./operations/ExtractFields');
+
 /**
  * Given a full filepath and an AST representing the contents of
  * that filepath, a quotient term return a collapses the AST according
@@ -56,8 +58,21 @@ module.exports = function( args ) {
 
 							}
 
+							try {
+
+							quotient.documentation = {
+								description: fields.description( ast.docstring ),
+								types: fields.types( ast.docstring ),
+								parameters: fields.params( ast.docstring ),
+								rvalue: fields.rvalue( ast.docstring ),
+								rtype: fields.rtype( ast.docstring )
+							};
+
+							} catch ( e ) {
+								console.log( err );
+							}
 							
-							quotient.documentation = ast.docstring;
+							//quotient.documentation = ast.docstring;
 								
 							quotient.start = ast.position.line;
 
