@@ -69,7 +69,7 @@ module.exports = function Push( args, expecting ) {
 
 		},
 
-		write: function( schemaPath, contentPath, value ) {
+		write: function( schemaPath, contentPath, namePath, value ) {
 
 			function conclude( err ) {
 				if ( err ) { throw err; }
@@ -97,6 +97,11 @@ module.exports = function Push( args, expecting ) {
 				var schemaString = pathOf( schemaPath );
 
 				var contentString = pathOf( contentPath.concat( [uuidKey] ) );
+
+				var nameString = pathOf( namePath );
+
+				var nameValue = pathOf( schemaPath.slice(1) );
+
 
 				db.once('value', function( snapshot ) {
 
@@ -133,7 +138,20 @@ module.exports = function Push( args, expecting ) {
 
 							if ( err ) throw err;
 
-							db.child( schemaString ).set( {key: uuidKey, timestamp: Date.now()}, conclude);
+							db.child( schemaString ).set( {key: uuidKey, timestamp: Date.now()}, function( err ) {
+								if ( err ) throw err;
+
+								if ( typeof nameString !== undefined ) {
+
+									db.child( nameString ).set( nameValue, conclude);
+
+								} else {
+
+									conclude( err );
+
+								}
+
+							});
 
 						});
 
@@ -192,7 +210,13 @@ module.exports = function Push( args, expecting ) {
 };
 
 function pathOf( array ) {
-	return array.join( '/' );
+
+	if ( typeof array !== "undefined" ) {
+		return array.join( '/' );
+	}
+
+	return array;
+	
 }
 
 function normalizePath( path ) {
