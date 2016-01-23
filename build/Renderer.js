@@ -16,9 +16,6 @@ var overloadedFor = require('./extensions/For')(['_url', '_name', '_id', '_times
 
 var utilities = require('../Util');
 
-var canonicalize = require('../route/CanonicalizeRoute');
-
-
 
 var individual = "children";
 
@@ -27,8 +24,6 @@ var index = "index";
 var suffix = ".html";
 
 var defaultRedirect = "/";
-
-var memo = {};
 
 
 
@@ -190,9 +185,14 @@ module.exports = function Renderer( args ) {
 		}
 
 		function resolve( string, references ) {
+			if ( typeof references === "undefined" ) {
+				references = nametable;
+			} else {
+				references = references.classes;
+			}
 
-			for ( var object in references.classes ) {
-				if ( references.classes.hasOwnProperty( object ) ) {
+			for ( var object in references ) {
+				if ( references.hasOwnProperty( object ) ) {
 
 					string = string.replace( 
 						new RegExp( object, "g" ), 
@@ -202,7 +202,6 @@ module.exports = function Renderer( args ) {
 				}
 
 			}
-
 
 			return string;
 		}
