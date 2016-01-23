@@ -6,10 +6,7 @@ var concat = require('../../../Util').concat;
 
 var compose = require('../../../Util').compose;
 
-var not = require('../../../Util').not;
-
 var ignorelist = [ "True", "False", "None", "VERBOSE_FS" ];
-
 
 
 module.exports = {
@@ -187,11 +184,6 @@ function collectFunctionNames( ast ) {
 	return collected.filter( isFunctionName );
 
 }
-
-function otherwise() {
-
-}
-
 
 function isArray( object ) {
 	return 	Array.isArray( object );

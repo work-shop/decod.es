@@ -10,7 +10,7 @@ var match = require('../../Match');
 
 var prune = require('./operations/PruneQuotient');
 
-var canonicalize = require('./operations/CanonicalizeResource');
+var canonicalize = require('../../route/CanonicalizeRoute');
 
 var references = require('./operations/CollectReferences');
 
@@ -155,6 +155,7 @@ module.exports = function( args ) {
 					filepath: utilities.prune( args.source, filepath), 
 					schema: canonicalize( ['schema'].concat(prefixes).concat( [quotient.name] ) ),
 					content: canonicalize( ['content'] ),
+					names: ['names', quotient.name],
 					value: quotient
 				}
 			];

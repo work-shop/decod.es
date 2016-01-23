@@ -6,7 +6,9 @@ var path = require( 'path' );
 
 var match = require('../../Match');
 
-var canonicalize = require('./operations/CanonicalizeResource');
+var canonicalize = require('../../route/CanonicalizeRoute');
+
+var collect = require('./operations/CollectReferences');
 
 var extract = require('./operations/ExtractFields');
 
@@ -63,11 +65,16 @@ module.exports = function( args ) {
 					match.expr( match.matchtype( 'Module' ),
 						function() {
 
+							quotient.documentation = extract.introduction( ast.docstring );
+
 							quotient.required = extract.required( ast.docstring );
 
 							quotient.result = extract.result( ast.docstring );
 
-							quotient.documentation = extract.introduction( ast.docstring );
+							quotient.references = {
+								classes: collect.classes( ast )
+							};
+
 							
 							quotient.blocks = ast.body.map( tagAST ).filter( function( x ) { return x !== null; });
 
