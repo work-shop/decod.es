@@ -1,6 +1,6 @@
 "use strict";
 
-
+var util = require('util');
 
 var path = require('path');
 
@@ -16,6 +16,8 @@ var overloadedFor = require('./extensions/For')(['_url', '_name', '_id', '_times
 
 var utilities = require('../Util');
 
+var canonicalize = require('../route/CanonicalizeRoute');
+
 
 
 var individual = "children";
@@ -23,6 +25,10 @@ var individual = "children";
 var index = "index";
 
 var suffix = ".html";
+
+var defaultRedirect = "/";
+
+var memo = {};
 
 
 
@@ -32,12 +38,14 @@ swig.setTag('for', overloadedFor.parse, overloadedFor.compile, overloadedFor.end
 
 module.exports = function Renderer( args ) {
 
+
+
 	swig.setDefaults({ loader: swig.loaders.fs( args.templates ) });
 
 	if ( !(this instanceof Renderer ) ) { return new Renderer( args ); }
 	var self = this;
 
-	self.render = function( path, context, log, continuation ) {
+	self.render = function( path, context, log, nametable, continuation ) {
 		
 		async.filterSeries( resolveTemplatePaths( path ), fs.exists,  function( existing ) {
 
@@ -67,7 +75,7 @@ module.exports = function Renderer( args ) {
 							fs.writeFile( 
 
 								outputLocation, 
-								swig.compileFile( templateLocation )( buildContext( context ) ), 
+								swig.compileFile( templateLocation )( buildContext( context, nametable ) ), 
 								{ flags: "w" },
 								function( err ) {
 
@@ -163,6 +171,58 @@ module.exports = function Renderer( args ) {
 	}
 
 	/**
+	 * This function builds a rendering context that is 
+	 * specific to the particular object being rendered.
+	 * 
+	 * @param  {[type]} context [description]
+	 * @return {[type]}         [description]
+	 */
+	function buildContext( context, nametable ) {
+
+		//var lookup = lookupIn( context );
+		//
+		function lookup( string ) {
+			if ( typeof nametable[ string ] !== "undefined" ) {
+				return "/" + nametable[ string ];
+			} else {
+				return defaultRedirect;
+			}
+		}
+
+		function resolve( string, references ) {
+
+			for ( var object in references.classes ) {
+				if ( references.classes.hasOwnProperty( object ) ) {
+
+					string = string.replace( 
+						new RegExp( object, "g" ), 
+						"<a href=\""+ lookup( object ) +"\">"+object+"</a>" 
+					);
+
+				}
+
+			}
+
+
+			return string;
+		}
+		
+		context.url = function( item ) {
+			return item._url;
+		};
+
+		context.name = function( item ) {
+			return item._name;
+		};
+
+		context.resolve = resolve;
+
+		context.lookup = lookup;
+
+		return context;
+	}
+
+	/**
 	 * given a schema path to render, this routine returns the destination, based at args.output
 	 * that should be used as the destination location for this file.
 	 * 
@@ -177,17 +237,7 @@ module.exports = function Renderer( args ) {
 
 };
 
-function buildContext( context ) {
-	context.url = function( item ) {
-		return item._url;
-	};
 
-	context.name = function( item ) {
-		return item._name;
-	};
-
-	return context;
-}
 
 
 

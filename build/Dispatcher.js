@@ -71,12 +71,10 @@ function render( renderer, continuation, log ) {
 
 					var resolution = getContextFor( path, context, data.content );
 
-					renderer.render( resolution.path, resolution.context, log, callback );
+					renderer.render( resolution.path, resolution.context, log, data.names, callback );
 
 				},  
 				function( err ) {
-
-					console.log( 'error in async' );
 
 					if ( err ) { 
 						
@@ -214,7 +212,7 @@ function definePathList( key, value ) {
 
 
 function structurallyConsistent( snapshot ) {
-	return !(snapshot.schema === "undefined" || snapshot.content === "undefined");
+	return !(snapshot.schema === "undefined" || snapshot.content === "undefined" || snapshot.names === "undefined");
 	
 }
 
