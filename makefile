@@ -1,4 +1,5 @@
 OUTPUT-DIR = output
+IMAGE-DIR = images
 
 
 .PHONY: serve serve-stop build
@@ -8,7 +9,8 @@ build:
 	./decodes build $(OUTPUT-DIR) --templates="../decod.es-templates"
 
 serve:
-	http-server $(OUTPUT-DIR) &
+	http-server $(OUTPUT-DIR) -p 8080 &
+	http-server $(IMAGE-DIR) -p 8081 &
 	livereload $(OUTPUT-DIR) &
 
 serve-stop:
