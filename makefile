@@ -19,3 +19,8 @@ clean-files:
 	rm -rf $(OUTPUT-DIR)
 
 clean: serve-stop clean-files
+
+delete-firebase:
+	curl -X DELETE 'https://incandescent-torch-1447.firebaseio.com/content.json'
+	curl -X DELETE 'https://incandescent-torch-1447.firebaseio.com/schema.json'
+	curl -X DELETE 'https://incandescent-torch-1447.firebaseio.com/names.json'
