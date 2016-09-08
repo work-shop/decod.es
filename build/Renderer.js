@@ -11,10 +11,13 @@ var swig = require('swig');
 var async = require('async');
 
 
+var excludedKeys = ['_url', '_name', '_id', '_timestamp']
 
-var overloadedFor = require('./extensions/For')(['_url', '_name', '_id', '_timestamp']);
+var overloadedFor = require('./extensions/For')( excludedKeys );
 
 var utilities = require('../Util');
+
+var unencodeImage = require('./extensions/InvertImageEncoding');
 
 
 var individual = "children";
@@ -174,14 +177,26 @@ module.exports = function Renderer( args ) {
 	 */
 	function buildContext( context, nametable ) {
 
-		//var lookup = lookupIn( context );
-		//
+		function asset( image ) {
+			return url.resolve( args.cdn, unencodeImage( image ) );
+		}
+
 		function lookup( string ) {
 			if ( typeof nametable[ string ] !== "undefined" ) {
 				return "/" + nametable[ string ];
 			} else {
 				return defaultRedirect;
 			}
+		}
+
+		function title( name ) {
+			return name.replace(/-/g, ' ').replace(/(\b.)+/g, function( x ) { return x.toUpperCase(); } ).trim();
+		}
+
+		function condense( name ) {
+			var uppers = name.split('').filter( function( x ) { return x.toUpperCase() === x; } ).join('');
+
+			return (uppers.length > 1) ? uppers.substring(0,3) : name.substring(0,3);
 		}
 
 		function resolve( string, references ) {
@@ -217,6 +232,12 @@ module.exports = function Renderer( args ) {
 		context.resolve = resolve;
 
 		context.lookup = lookup;
+
+		context.asset = asset;
+
+		context.condense = condense;
+
+		context.title = title;
 
 		return context;
 	}
