@@ -10,7 +10,9 @@ var Package = JSON.parse( fs.readFileSync('./package.json') );
 
 var firebaseURL = "https://incandescent-torch-1447.firebaseio.com/";
 
-var parserURL = path.join( __dirname, '..', 'decod.es-parser' );
+var gitBaseUrl = "https://github.com/ksteinfe/decodes/blob/master/";
+
+var parserURL = path.join( __dirname, '..', 'decodes-parser' );
 
 var tempateDir = path.join( process.cwd(), 'static' );
 
@@ -102,6 +104,14 @@ var parse = subparsers.addParser('parse', { addHelp: true });
 		}
 	);
 
+	parse.addArgument(
+		['-g', '--giturl'],
+		{
+			help: "Specify the base giturl that is this collection of files lives on."
+			defaultValue: gitBaseUrl
+		}
+	);
+
 
 /**
  * The build flag tells the system to
@@ -155,43 +165,6 @@ var build = subparsers.addParser('build', { addHelp: true });
 			defaultValue: firebaseURL
 		}
 	);
-
-
-/**
- * The serve flag tells the system to launch
- * a local server which serves the decod.es 
- * documentation app.
- */
-var serve = subparsers.addParser('serve', { addHelp: true });
-
-	/**
-	 * The port argument overrides the default port
-	 * to bind to when launching a local server.
-	 */
-	serve.addArgument(
-		[ '-p', '--port' ],
-		{
-			help: 'Specify the port to bind the local server to.',
-			defaultValue: 8000
-		}
-	);
-
-
-parser.addArgument(
-	['-q', '--quiet'],
-	{
-		help: 'Just present the minimal output report, at the end of parsing.',
-		defaultValue: false
-	}
-);
-
-parser.addArgument(
-	['-s', '--silent'],
-	{
-		help: 'Produce no output at all, except on an error condition.',
-		defaultValue: false
-	}
-);
 
 
 module.exports = parser.parseArgs();

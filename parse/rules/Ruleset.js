@@ -53,7 +53,7 @@ module.exports = function( args ) {
 
 		new Rule().when( or( within('test', 'test'), within('test', 'io') ) ).preform( skip ),
 
-		new Rule().when( and( within( 'source' ), contains('.py') ) ).preform( source  ),
+		new Rule().when( and( within( 'decodes' ), contains('.py') ) ).preform( source  ),
 
 		new Rule().when( and( within('examples'), contains('.py') ) ).preform( example )
 
