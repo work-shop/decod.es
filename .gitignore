@@ -17,6 +17,7 @@ node_modules
 test
 db.json
 output
+images
 
 npm-debug.log
 
