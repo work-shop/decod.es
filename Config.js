@@ -166,5 +166,17 @@ var build = subparsers.addParser('build', { addHelp: true });
 		}
 	);
 
+	build.addArgument(
+		['-c', '--image-cdn'],
+		{
+			help: 'Specify the CDN base URL to resolve images against. Always use a trailing slash.',
+			defaultValue: 'http://localhost:8081/'
+		}
+	);
 
-module.exports = parser.parseArgs();
+
+var args = parser.parseArgs();
+
+args.encoded = { dot: '$', slash: '#' };
+
+module.exports = args;
