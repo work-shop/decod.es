@@ -107,7 +107,7 @@ var parse = subparsers.addParser('parse', { addHelp: true });
 	parse.addArgument(
 		['-g', '--giturl'],
 		{
-			help: "Specify the base giturl that is this collection of files lives on."
+			help: "Specify the base giturl that is this collection of files lives on.",
 			defaultValue: gitBaseUrl
 		}
 	);
