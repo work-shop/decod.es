@@ -22,3 +22,4 @@ images
 npm-debug.log
 
 .jshintrc
+.DS_Store
