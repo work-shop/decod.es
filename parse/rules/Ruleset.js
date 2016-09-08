@@ -36,7 +36,7 @@ var 	and = Rule.and,
 
 module.exports = function( args ) {
 
-	var 	skip = compose( args )( SkipProcess, emptyQuotient ),
+	var skip = compose( args )( SkipProcess, emptyQuotient ),
 
 		source = compose( args )(  throttle( PythonProcess ), sourceASTQuotient ),
 
@@ -53,9 +53,9 @@ module.exports = function( args ) {
 
 		new Rule().when( or( within('test', 'test'), within('test', 'io') ) ).preform( skip ),
 
-		new Rule().when( and( within( 'decodes' ), contains('.py') ) ).preform( source  ),
+		new Rule().when( and( within('examples'), contains('.py') ) ).preform( example ),
 
-		new Rule().when( and( within('examples'), contains('.py') ) ).preform( example )
+		new Rule().when( and( within( 'decodes' ), contains('.py') ) ).preform( source ),
 
 	];
 

@@ -23,6 +23,8 @@ function Rule() {
 
 	self.preform = function( process ) {
 
+
+
 		action = process;
 
 		return self;

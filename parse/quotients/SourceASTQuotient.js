@@ -42,6 +42,7 @@ module.exports = function( args ) {
 		 * @param {[type]} key    [description]
 		 */
 		function divideAST( ast ) {
+
 			var quotient = {};
 
 			match(
@@ -54,26 +55,27 @@ module.exports = function( args ) {
 
 							if ( typeof ast.decorators !== "undefined" ) { 
 
-								quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+								var decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+
+								quotient.decorator = ( decorators.length > 0 ) ? decorators[0] : (( quotient.name === "__init__" ) ? "constructor" : "method") ;
 
 							}
 
+
 							try {
 
-							quotient.documentation = {
-								description: fields.description( ast.docstring ),
-								types: fields.types( ast.docstring ),
-								parameters: fields.params( ast.docstring ),
-								rvalue: fields.rvalue( ast.docstring ),
-								rtype: fields.rtype( ast.docstring )
-							};
+								quotient.documentation = {
+									description: fields.description( ast.docstring ),
+									types: fields.types( ast.docstring ),
+									parameters: fields.params( ast.docstring ),
+									rvalue: fields.rvalue( ast.docstring ),
+									rtype: fields.rtype( ast.docstring )
+								};
 
 							} catch ( e ) {
 								console.log( err );
 							}
-							
-							//quotient.documentation = ast.docstring;
-								
+															
 							quotient.start = ast.position.line;
 
 							quotient.end = closingLineFromAST( ast );
@@ -92,12 +94,16 @@ module.exports = function( args ) {
 							quotient.definedIn = filepath;
 
 							
-							quotient.documentation = ast.docstring;
-														
+							quotient.documentation = {
+								description: fields.description( ast.docstring ),
+								images: fields.images( ast.docstring )
+							}
+								
+							if ( typeof ast.decorators !== "undefined" ) { 
 
-							if ( typeof ast.decorators !== "undefined" && ast.decorators.length > 0 ) { 
-							
-								quotient.decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+								var decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+
+								quotient.decorator = ( decorators.length > 0 ) ? decorators[0] : (( quotient.name === "__init__" ) ? "constructor" : "method") ;
 
 							}
 
@@ -123,7 +129,10 @@ module.exports = function( args ) {
 
 							if ( ast.docstring !== null ) {
 
-								quotient.documentation = ast.docstring;
+								quotient.documentation = {
+									description: fields.description( ast.docstring ),
+									images: fields.images( ast.docstring )
+								}
 								
 							}
 
@@ -161,10 +170,9 @@ module.exports = function( args ) {
 		var division = prune( divideAST( ast ) );
 
 		return division.definitions.map( function( quotient ) {
-			/**
-			 * This definition
-			 */
-			//console.log( quotient );
+
+			quotient.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( path.sep );
+
 			return [
 				{ 
 					filepath: utilities.prune( args.source, filepath), 

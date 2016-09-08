@@ -57,6 +57,7 @@ module.exports = function( args ) {
 
 
 		function tagAST( ast ) {
+
 			var quotient = {};
 
 			match(
@@ -65,7 +66,14 @@ module.exports = function( args ) {
 					match.expr( match.matchtype( 'Module' ),
 						function() {
 
-							quotient.documentation = extract.introduction( ast.docstring );
+
+
+							quotient.documentation = {
+								description: extract.introduction( ast.docstring ),
+								images: extract.images( ast.docstring )
+							}
+
+							console.log( quotient.documentation );
 
 							quotient.required = extract.required( ast.docstring );
 
@@ -75,7 +83,6 @@ module.exports = function( args ) {
 								classes: collect.classes( ast )
 							};
 
-							
 							quotient.blocks = ast.body.map( tagAST ).filter( function( x ) { return x !== null; });
 
 						}),
@@ -142,6 +149,8 @@ module.exports = function( args ) {
 		condensed.name = determineFilename( filepath );
 
 		var prefixes = prefixPath( filepath );
+
+		condensed.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( path.sep );
 
 		return [
 			{ 

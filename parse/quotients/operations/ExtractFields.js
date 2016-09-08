@@ -4,10 +4,13 @@ var utilities = require('../../../Util');
 
 var nonempty = utilities.compose( utilities.not, utilities.empty );
 
+var dotPlaceholder = '&';
+var slashPlaceholder = '@';
+
 module.exports = {
 	description: function( docstring ) {
 
-		return extractValue(  /\s*([^:]*):/g.exec( docstring ) );
+		return extractValue(  /(^[\s\S]*?)(?=:param|:type|:return|:rtype|:image|$)/.exec( docstring ) );
 
 	},
 	params: function( docstring ){
@@ -43,14 +46,17 @@ module.exports = {
 	},
 	introduction: function( docstring ) {
 
-		return extractValue( /\s*([\s\S]*)\s*required:/.exec( docstring ) );
+		return extractValue( /(^[\s\S]*?)(?=required:|result:|:image|$)/.exec( docstring ) );
+
+	},
+	images: function( docstring ) {
+
+		return extractRSTStrings( /:image\s*([\S]*):\s*([^:]*)\s*:?/g, docstring, encodeImageString );
 
 	}
 };
 
 function extractValue( value ) {
-
-	//console.log( value );
 
 	return utilities.nullableWithDefault( 
 		value, 
@@ -59,7 +65,13 @@ function extractValue( value ) {
 	);
 }
 
-function extractRSTStrings( pattern, string ) {
+function encodeImageString( name ) {
+	return name.replace(/\./g, dotPlaceholder ).replace(/\//g, slashPlaceholder );
+}
+
+function extractRSTStrings( pattern, string, keytransform ) {
+
+		keytransform = keytransform || function( x ) { return x; }
 
 		var 	results = {},
 			match;
@@ -72,7 +84,7 @@ function extractRSTStrings( pattern, string ) {
 
 			} else {
 
-				results[ match[ 1 ] ] = match[ 2 ];
+				results[ keytransform( match[ 1 ] ) ] = match[ 2 ];
 
 			}
 
