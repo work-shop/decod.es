@@ -27,10 +27,10 @@ module.exports = function( args ) {
 				var delimiter = file[ endLine - 1 ].trim();
 				var startLine = endLine - 2;
 
-				while ( file[ startLine ].trim() !== delimiter ) { 
-					startLine -= 1; 
+				while ( file[ startLine ].trim() !== delimiter ) {
+					startLine -= 1;
 				}
-				
+
 				return startLine + 1;
 
 			}
@@ -73,15 +73,22 @@ module.exports = function( args ) {
 								images: extract.images( ast.docstring )
 							}
 
-							console.log( quotient.documentation );
-
 							quotient.required = extract.required( ast.docstring );
 
 							quotient.result = extract.result( ast.docstring );
 
-							quotient.references = {
-								classes: collect.classes( ast )
-							};
+                            try {
+
+                                quotient.references = {
+    								classes: collect.classes( ast )
+    							};
+
+                            } catch ( e ) {
+
+                                console.log( e.message );
+                                console.log( e.stack );
+
+                            }
 
 							quotient.blocks = ast.body.map( tagAST ).filter( function( x ) { return x !== null; });
 
@@ -104,7 +111,7 @@ module.exports = function( args ) {
 
 						}),
 					match.expr( match.otherwise, function() {
-						quotient = null; 
+						quotient = null;
 					} )
 				]
 			);
@@ -153,8 +160,8 @@ module.exports = function( args ) {
 		condensed.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( path.sep );
 
 		return [
-			{ 
-				filepath: filepath, 
+			{
+				filepath: filepath,
 				schema: canonicalize( ['schema'].concat(prefixes).concat( [condensed.name] ) ),
 				content: canonicalize( ['content'] ),
 				value: condensed
@@ -162,8 +169,3 @@ module.exports = function( args ) {
 		];
 	};
 };
-
-
-
-
-

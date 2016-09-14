@@ -45,16 +45,21 @@ function collectClassNames( ast ) {
 					collected = collected.concat( [ ast.value ] );
 				}
 			),
-			match.expr( match.matchtype('ClassDef'), 
+			match.expr( match.matchtype('ClassDef'),
 				function() {
 					collected = collected.concat(
-						[ ast.name ], 
+						[ ast.name ],
 						ast.bases.map( collectClassNames ).reduce( concat, []),
 						ast.decorator_list.map( collectClassNames ).reduce( concat, []),
 						ast.body.map( collectClassNames ).reduce( concat, [])
 					);
 				}
 			),
+            match.expr( match.matchtype('Call'),
+                function () {
+                    collected = collected.concat( collectCallSubexpression( ast['function'], isClassName ) );
+                }
+            ),
 			match.expr( match.otherwise,
 				function() {
 
@@ -83,7 +88,9 @@ function collectClassNames( ast ) {
 
 
 
-function collectCallSubexpression( ast ) {
+function collectCallSubexpression( ast, filter ) {
+
+    filter = filter || isFunctionName;
 
 	if ( typeof ast === "undefined" ) return [];
 
@@ -96,7 +103,7 @@ function collectCallSubexpression( ast ) {
 		[
 			match.expr( match.matchtype('Attribute'),
 				function() {
-					collected = collected.concat( 
+					collected = collected.concat(
 						collectCallSubexpression( ast.value ),
 						collectCallSubexpression( ast.Attribute )
 					);
@@ -104,7 +111,7 @@ function collectCallSubexpression( ast ) {
 			),
 			match.expr( match.matchtype('Name'),
 				function() {
-					collected = collected.concat( collectCallSubexpression( ast.value ) );
+					collected = collected.concat( collectCallSubexpression( ast.line ) );
 				}
 			),
 			match.expr( match.matchtype('Subscript'),
@@ -118,17 +125,17 @@ function collectCallSubexpression( ast ) {
 						if ( ast.hasOwnProperty( key ) ) {
 							if ( isArray( ast[ key ] ) ) {
 
-								collected = collected.concat( ast[key].map( collectCallSubexpression ).reduce( concat, [] ) );
+								collected = collected.concat( ast[key].map( function( x ) { return collectCallSubexpression( x, filter ) } ).reduce( concat, [] ) );
 
 							}
 						}
 					}
-				} 
-			) 
+				}
+			)
 		]
 	);
 
-	return collected.filter( isFunctionName );
+	return collected.filter( filter );
 
 }
 
@@ -190,28 +197,22 @@ function isArray( object ) {
 }
 
 function isASTNode( object ) {
-	return 	object !== null && 
-			typeof object.expr !== "undefined" && 
+	return 	object !== null &&
+			typeof object.expr !== "undefined" &&
 			typeof object.type !== "undefined";
 }
 
 function isFunctionName( string ) {
 	return 	typeof string === "string" &&
-			string !== "" && 
+			string !== "" &&
 			!ignorelist.some( function( entry ) { return entry === string; }) &&
-			string[ 0 ] === string[ 0 ].toLowerCase();	
+			string[ 0 ] === string[ 0 ].toLowerCase();
 }
 
 function isClassName( string ) {
 	return 	typeof string === "string" &&
-			string !== "" && 
+			string !== "" &&
 			!ignorelist.some( function( entry ) { return entry === string; }) &&
 			string[ 0 ] === string[ 0 ].toUpperCase();
 
 }
-
-
-
-
-
-
