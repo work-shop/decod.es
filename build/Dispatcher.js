@@ -32,7 +32,7 @@ module.exports = function Dispatcher( args ) {
 	 * Bind a firebase instance to this dispatcher. Leave db undefined
 	 * to bind a new instance. This method should be called before any
 	 * further methods are called.
-	 * 
+	 *
 	 * @param  {Firebase | undefined} db a database connection to mount
 	 * @return {Dispatcher}    self
 	 */
@@ -47,7 +47,7 @@ module.exports = function Dispatcher( args ) {
 
 	self.render = function( continuation  ) {
 		if ( typeof db === "undefined" ) { self.db(); }
-		
+
 		db.once('value', render( renderer, continuation, log ) );
 
 	};
@@ -66,18 +66,18 @@ function render( renderer, continuation, log ) {
 
 			//console.log( util.inspect( context, true, 3) );
 
-			async.each( pathlist, 
+			async.each( pathlist,
 				function( path, callback ) {
 
 					var resolution = getContextFor( path, context, data.content );
 
 					renderer.render( resolution.path, resolution.context, log, data.names, callback );
 
-				},  
+				},
 				function( err ) {
 
-					if ( err ) { 
-						
+					if ( err ) {
+
 						log.addLine( "", "", "IO", err.message, Date.now() );
 
 					}
@@ -124,7 +124,7 @@ function unify( schema, content, path ) {
 		return data;
 
 
-	} else if ( schema !== null && typeof schema === "object" ) {	
+	} else if ( schema !== null && typeof schema === "object" ) {
 
 		for ( var key in schema ) {
 			if ( schema.hasOwnProperty( key ) ) {
@@ -174,7 +174,7 @@ function getContextFor( path, data, content ) {
 		path: rootpoint,
 		context: {
 			data: data,
-			item: trimObject( rootpoint, data ),			
+			item: trimObject( rootpoint, data ),
 		}
 	};
 
@@ -186,9 +186,9 @@ function definePathList( key, value ) {
 
 		return [ value.key ];
 
-	} else if ( value !== null && typeof value === "object" ) {	
+	} else if ( value !== null && typeof value === "object" ) {
 
-		var paths = [];	
+		var paths = [];
 
 		for ( var index in value ) {
 			if ( value.hasOwnProperty( index ) ) {
@@ -213,7 +213,7 @@ function definePathList( key, value ) {
 
 function structurallyConsistent( snapshot ) {
 	return !(snapshot.schema === "undefined" || snapshot.content === "undefined" || snapshot.names === "undefined");
-	
+
 }
 
 function terminal( object ) {
@@ -227,4 +227,3 @@ function first( arr ) {
 function last( arr ) {
 	return arr[ arr.length - 1 ];
 }
-
