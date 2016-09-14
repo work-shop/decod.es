@@ -14,7 +14,7 @@ serve:
 	livereload $(OUTPUT-DIR) &
 
 serve-stop:
-	kill -9 $$(ps aux | grep -v grep | grep "livereload" | awk '{print $$2}') 
+	kill -9 $$(ps aux | grep -v grep | grep "livereload" | awk '{print $$2}')
 	kill -9 $$(ps aux | grep -v grep | grep "http-server" | awk '{print $$2}') 
 
 clean-files:
