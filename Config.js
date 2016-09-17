@@ -20,6 +20,8 @@ var baseName = 'test';
 
 var baseOutput = 'db.json';
 
+var defaultImageCDN = 'http://localhost:8081/';
+
 
 
 
@@ -39,15 +41,15 @@ var parse = subparsers.addParser('parse', { addHelp: true });
 
 	parse.addArgument(
 		['source'],
-		{	
+		{
 			help: 'Specify the filestructure to parse',
 		}
 	);
 
 	/**
-	 * The dump command tells the parse process to ignore 
+	 * The dump command tells the parse process to ignore
 	 * the firebase, and instead just dump the parse resultant
-	 * to STDOUT. 
+	 * to STDOUT.
 	 */
 	parse.addArgument(
 		['-d', '--dump'],
@@ -58,7 +60,7 @@ var parse = subparsers.addParser('parse', { addHelp: true });
 	);
 
 	/**
-	 * The parse command tells the system to read a 
+	 * The parse command tells the system to read a
 	 * specified filestructure, parse the required data from
 	 * it, and store the results in the specified firebase.
 	 */
@@ -130,7 +132,7 @@ var build = subparsers.addParser('build', { addHelp: true });
 	/**
 	 * This build flag specifies an alternative template
 	 * directory to use.
-	 *  
+	 *
 	 * @type {String}
 	 */
 	build.addArgument(
@@ -143,7 +145,7 @@ var build = subparsers.addParser('build', { addHelp: true });
 
 	build.addArgument(
 		['-w','--watch'],
-		{	
+		{
 			action: "storeTrue",
 			help: 'Set the build process to run as a server, listening to the specified firebase url for changes',
 			defaultValue: false
@@ -170,7 +172,7 @@ var build = subparsers.addParser('build', { addHelp: true });
 		['-c', '--image-cdn'],
 		{
 			help: 'Specify the CDN base URL to resolve images against. Always use a trailing slash.',
-			defaultValue: 'http://localhost:8081/'
+			defaultValue: defaultImageCDN
 		}
 	);
 
