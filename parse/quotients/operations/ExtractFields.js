@@ -10,7 +10,7 @@ var slashPlaceholder = '@';
 module.exports = {
 	description: function( docstring ) {
 
-		return extractValue(  /(^[\s\S]*?)(?=:param|:type|:return|:rtype|:image|$)/.exec( docstring ) );
+		return extractValue(  /(^[\s\S]*?)(?=:param|:type|:result|:rtype|:image|$)/.exec( docstring ) );
 
 	},
 	params: function( docstring ){

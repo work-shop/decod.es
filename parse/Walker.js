@@ -16,16 +16,16 @@ function Walker( args, source, callback ) {
 
 		var Push = new Pusher( args );
 
-		walk( source ).on( 'file', function( filename ) { 
+		walk( source ).on( 'file', function( filename ) {
 
 			 rules( filename, Push, noop );
 
 		});
 
-		Push.conclude( function( methods ) { 
+		Push.conclude( function( methods ) {
 
 			methods.close();
-			
+
 			callback( null, methods );
 
 		} );

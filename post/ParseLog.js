@@ -64,15 +64,28 @@ function ParseLog( args, expecting ) {
 
 		record: function( timestamp, path, message, status ) {
 
-            var p = nodepath.parse( path );
-            var dirs = p.dir.split(nodepath.sep);
+            if ( typeof path !== "undefined" ) {
 
-			recordStructure.push( [
-				[ dirs[ dirs.length-1 ], p.base].join( Color.blue( ' '+nodepath.sep+' ' ) ),
-				colorStatus( status ),
-				Color.white.bold( message ),
-				timestamp
-			] );
+                var p = nodepath.parse( path );
+                var dirs = p.dir.split(nodepath.sep);
+
+    			recordStructure.push( [
+    				[ dirs[ dirs.length-1 ], p.base].join( Color.blue( ' '+nodepath.sep+' ' ) ),
+    				colorStatus( status ),
+    				Color.white.bold( message ),
+    				timestamp
+    			] );
+
+            } else {
+
+                recordStructure.push( [
+    				path,
+    				colorStatus( status ),
+    				Color.white.bold( message ),
+    				timestamp
+    			] );
+
+            }
 
 		},
 

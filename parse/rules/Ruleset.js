@@ -20,13 +20,13 @@ var compose = require( '../compositions/ComposeProcessQuotient' );
 var Rule = require('./Rule');
 
 
-var 	and = Rule.and, 
-	
+var 	and = Rule.and,
+
 	or = Rule.or,
 
 	not = Rule.not,
-	
-	contains = Rule.contains, 
+
+	contains = Rule.contains,
 
 	within = Rule.within;
 
@@ -42,7 +42,6 @@ module.exports = function( args ) {
 
 		example = compose( args )( throttle( PythonProcess ), exampleASTQuotient );
 
-
 	return [
 
 		new Rule().when( not( contains('.py') ) ).preform( skip ),
@@ -53,9 +52,9 @@ module.exports = function( args ) {
 
 		new Rule().when( or( within('test', 'test'), within('test', 'io') ) ).preform( skip ),
 
-		new Rule().when( and( within('examples'), contains('.py') ) ).preform( example ),
+		new Rule().when( and( within( 'decodes', 'examples'), contains('.py') ) ).preform( example ),
 
-		new Rule().when( and( within( 'decodes' ), contains('.py') ) ).preform( source ),
+		new Rule().when( and( within( 'decodes', 'decodes' ), contains('.py') ) ).preform( source ),
 
 	];
 

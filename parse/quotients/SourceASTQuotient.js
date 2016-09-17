@@ -171,7 +171,7 @@ module.exports = function( args ) {
 
 		return division.definitions.map( function( quotient ) {
 
-			quotient.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( '' );
+			quotient.giturl = [ args.giturl ].concat( prefixes.join('/') ).concat( ['/', path.parse( filepath ).base ] ).join( '' );
 
 			return [
 				{
