@@ -112,6 +112,8 @@ module.exports = function Renderer( args ) {
 
 						} catch ( err ) {
 
+                            console.log( err.stack );
+
 							log.addLine(
 								utilities.prune( args.templates, templateLocation ),
 								utilities.prune( args.destination, outputLocation ),
@@ -217,7 +219,7 @@ module.exports = function Renderer( args ) {
         }
 
         function sortByKey( key, objects ) {
-            var files = {};
+            var files = { constructor: [] };
 
             for ( var objectName in objects ) {
                 if ( objects.hasOwnProperty( objectName ) && excludedKeys.indexOf( objectName ) === -1 ) {
@@ -280,6 +282,8 @@ module.exports = function Renderer( args ) {
 			} else {
 				references = references.classes;
 			}
+
+            if ( typeof string === "undefined" ) { return string; }
 
 			for ( var object in references ) {
 				if ( references.hasOwnProperty( object ) ) {
