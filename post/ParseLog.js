@@ -1,5 +1,7 @@
 "use strict";
 
+var nodepath = require('path');
+
 var Table = require('cli-table2');
 var Color = require('cli-color');
 
@@ -19,16 +21,16 @@ function ParseLog( args, expecting ) {
 	 * This Boolean Mutex is used to manage
 	 * the concurrent access to the log across
 	 * asynchronous code blocks.
-	 * 
+	 *
 	 * @type {Boolean}
 	 */
 	var locked = false;
 
 	/**
 	 * The record structure stores a linear order of stamps
-	 * recording the order, status, and message of each of the 
+	 * recording the order, status, and message of each of the
 	 * files encountered by walkers using this Log.
-	 * 
+	 *
 	 * @type {Array}
 	 */
 	var recordStructure = new Table({
@@ -45,7 +47,7 @@ function ParseLog( args, expecting ) {
 	/**
 	 * this object contains the incremental parse context, as we traverse
 	 * a sequence of files.
-	 * 
+	 *
 	 * @type {Object}
 	 */
 	var jsonStructure = {};
@@ -53,17 +55,20 @@ function ParseLog( args, expecting ) {
 	/**
 	 * The methods contained in this datastructure are
 	 * allow the process to mutate the the state of the log.
-	 * access to this structure only permitted through the 
-	 * lock method, and then only if the entry is 
-	 * 
+	 * access to this structure only permitted through the
+	 * lock method, and then only if the entry is
+	 *
 	 * @type {Object}
 	 */
 	var methods = {
 
 		record: function( timestamp, path, message, status ) {
 
-			recordStructure.push( [ 
-				path,
+            var p = nodepath.parse( path );
+            var dirs = p.dir.split(nodepath.sep);
+
+			recordStructure.push( [
+				[ dirs[ dirs.length-1 ], p.base].join( Color.blue( ' '+nodepath.sep+' ' ) ),
 				colorStatus( status ),
 				Color.white.bold( message ),
 				timestamp
@@ -77,14 +82,14 @@ function ParseLog( args, expecting ) {
 
 				object = object || {};
 
-				if ( keyindex >= JSONKeypath.length ) { 
+				if ( keyindex >= JSONKeypath.length ) {
 
 					if ( Array.isArray( object ) ) {
 						object.push( value );
 						return object;
 					}
 
-					return [ value ]; 
+					return [ value ];
 
 				} else {
 
@@ -117,12 +122,12 @@ function ParseLog( args, expecting ) {
 	 * the lock method blocks until obtaining a lock on
 	 * this log's mutex, and executes a continuation when
 	 * the mutext is obtained;
-	 * 
+	 *
 	 * @param  {Object -> ()} continuation [description]
 	 * @return {()}              [description]
 	 */
 	self.lock = function( continuation ) {
-		
+
 		continuation( methods );
 
 	};
@@ -134,7 +139,7 @@ function ParseLog( args, expecting ) {
 
 function colorStatus( status ) {
 	switch( status ) {
-		case "OK": 
+		case "OK":
 			return Color.green( status );
 
 		case "Skipped":
@@ -144,8 +149,8 @@ function colorStatus( status ) {
 		case "Syntax":
 			return Color.yellow.bold.blink( status );
 
-		case "PY IO": 
-		case "JS IO": 
+		case "PY IO":
+		case "JS IO":
 			return Color.red.bold.blink( status );
 	}
 }

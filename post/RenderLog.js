@@ -1,5 +1,6 @@
 "use strict";
 
+var nodepath = require('path');
 var Table = require('cli-table2');
 var Color = require('cli-color');
 
@@ -9,9 +10,9 @@ function RenderLog( args, expecting ) {
 
 	/**
 	 * The record structure stores a linear order of stamps
-	 * recording the order, status, and message of each of the 
+	 * recording the order, status, and message of each of the
 	 * files encountered by walkers using this Log.
-	 * 
+	 *
 	 * @type {Array}
 	 */
 	var recordStructure = new Table({
@@ -26,8 +27,8 @@ function RenderLog( args, expecting ) {
 	self.addLine = function( source, destination, status, message, timestamp ) {
 
 		recordStructure.push([
-			source,
-			destination,
+			source.split(nodepath.sep).join( ' '+Color.blue( nodepath.sep )+' '  ),
+			destination.split(nodepath.sep).join( ' '+Color.blue(nodepath.sep)+' '  ),
 			colorStatus( status ),
 			message,
 			timestamp
@@ -45,8 +46,8 @@ function colorStatus( status ) {
 	switch( status ) {
 		case "Skipped":
 			return Color.blue( status );
-			
-		case "OK": 
+
+		case "OK":
 			return Color.green( status );
 
 		case "Template":
