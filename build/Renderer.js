@@ -2,6 +2,8 @@
 
 var util = require('util');
 
+var url = require('url');
+
 var path = require('path');
 
 var fs = require( 'fs-extra' );
@@ -36,6 +38,8 @@ swig.setFilter( 'array', require('./extensions/Array')( excludedKeys ) );
 swig.setFilter( 'size', require('./extensions/Size')( excludedKeys ) );
 
 swig.setFilter( 'pluralize', require('./extensions/Pluralize')( ) );
+
+swig.setFilter( 'rest', require('./extensions/Rest')( ) );
 
 
 module.exports = function Renderer( args ) {
@@ -180,7 +184,7 @@ module.exports = function Renderer( args ) {
 	function buildContext( context, nametable ) {
 
 		function asset( image ) {
-			return url.resolve( args.cdn, unencodeImage( image ) );
+			return url.resolve( args.image_cdn, unencodeImage( image ) );
 		}
 
         function exampleReferences( examples ) {
@@ -208,6 +212,29 @@ module.exports = function Renderer( args ) {
             return references;
         }
 
+        function convertFilename( name ) {
+            return path.parse( name ).name;
+        }
+
+        function sortByKey( key, objects ) {
+            var files = {};
+
+            for ( var objectName in objects ) {
+                if ( objects.hasOwnProperty( objectName ) && excludedKeys.indexOf( objectName ) === -1 ) {
+                    if ( typeof objects[ objectName ][ key ] !== "undefined" ) {
+                        if ( typeof files[ objects[ objectName ][ key ] ] === "undefined" ) {
+                            files[ objects[ objectName ][ key ] ] = [ objects[ objectName ] ];
+                        } else {
+                            files[ objects[ objectName ][ key ] ].push( objects[ objectName ] );
+                        }
+                    }
+                }
+            }
+
+            return files;
+
+        }
+
 		function lookup( string ) {
 			if ( typeof nametable[ string ] !== "undefined" ) {
 				return "/" + nametable[ string ];
@@ -216,8 +243,29 @@ module.exports = function Renderer( args ) {
 			}
 		}
 
+        function extractExampleImages( item ) {
+            var images = {};
+
+            for ( var exampleName in item ) {
+                if ( item.hasOwnProperty( exampleName ) && excludedKeys.indexOf( exampleName ) === -1 ) {
+                    if ( typeof item[ exampleName ].documentation !== "undefined" && typeof item[ exampleName ].documentation.images !== "undefined" ) {
+
+                        for ( var imageName in item[ exampleName ].documentation.images ) {
+
+                            if ( item[ exampleName ].documentation.images.hasOwnProperty( imageName ) ) {
+                                images[ imageName ] = item[ exampleName ].documentation.images[ imageName ];
+                            }
+                        }
+                    }
+                }
+            }
+
+            return images;
+
+        }
+
 		function title( name ) {
-			return name.replace(/-/g, ' ').replace(/(\b.)+/g, function( x ) { return x.toUpperCase(); } ).trim();
+			return name.replace(/-/g, ' ').replace(/_/g, ' ').replace(/(\b.)+/g, function( x ) { return x.toUpperCase(); } ).trim();
 		}
 
 		function condense( name ) {
@@ -256,6 +304,10 @@ module.exports = function Renderer( args ) {
 			return item._name;
 		};
 
+        context.convertFilename = convertFilename;
+
+        context.sortByKey = sortByKey;
+
 		context.resolve = resolve;
 
 		context.lookup = lookup;
@@ -267,6 +319,8 @@ module.exports = function Renderer( args ) {
 		context.title = title;
 
         context.exampleReferences = exampleReferences;
+
+        context.extractExampleImages = extractExampleImages;
 
 		return context;
 	}
