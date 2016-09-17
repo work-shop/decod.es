@@ -24,7 +24,7 @@ var fields = require('./operations/ExtractFields');
  * JSON structure.
  *
  * The SourceASTQuotient collapses a file according to its code definitions.
- * 
+ *
  * @param  {[type]} filepath [description]
  * @param  {[type]} ast      [description]
  * @return {[type]}          [description]
@@ -37,7 +37,7 @@ module.exports = function( args ) {
 		/**
 		 * The divide routine takes an object assumed to have
 		 * a .type property containing a String. The TypeDivision
-		 * of this object 
+		 * of this object
 		 * @param {[type]} object [description]
 		 * @param {[type]} key    [description]
 		 */
@@ -53,9 +53,9 @@ module.exports = function( args ) {
 
 							quotient.name = ast.name;
 
-							if ( typeof ast.decorators !== "undefined" ) { 
+							if ( typeof ast.decorators !== "undefined" ) {
 
-								var decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+								var decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; });
 
 								quotient.decorator = ( decorators.length > 0 ) ? decorators[0] : (( quotient.name === "__init__" ) ? "constructor" : "method") ;
 
@@ -75,7 +75,7 @@ module.exports = function( args ) {
 							} catch ( e ) {
 								console.log( err );
 							}
-															
+
 							quotient.start = ast.position.line;
 
 							quotient.end = closingLineFromAST( ast );
@@ -83,7 +83,7 @@ module.exports = function( args ) {
 							quotient.code = false;
 
 							quotient.code = file.slice( quotient.start, quotient.end + 1 );
-							
+
 						}),
 
 					match.expr( match.matchtype( 'ClassDef' ),
@@ -93,15 +93,15 @@ module.exports = function( args ) {
 
 							quotient.definedIn = filepath;
 
-							
+
 							quotient.documentation = {
 								description: fields.description( ast.docstring ),
 								images: fields.images( ast.docstring )
 							}
-								
-							if ( typeof ast.decorators !== "undefined" ) { 
 
-								var decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; }); 
+							if ( typeof ast.decorators !== "undefined" ) {
+
+								var decorators = ast.decorators.map( function( x ) { return x.line; } ).filter( function( x ) { return typeof x !== "undefined"; });
 
 								quotient.decorator = ( decorators.length > 0 ) ? decorators[0] : (( quotient.name === "__init__" ) ? "constructor" : "method") ;
 
@@ -113,7 +113,7 @@ module.exports = function( args ) {
 							};
 
 							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
-							
+
 							quotient.start = ast.position.line;
 
 							quotient.end = closingLineFromQuotient( quotient );
@@ -133,11 +133,11 @@ module.exports = function( args ) {
 									description: fields.description( ast.docstring ),
 									images: fields.images( ast.docstring )
 								}
-								
+
 							}
 
 							quotient.definitions = ast.body.map( divideAST ).filter( function( x ) { return x !== null; } );
-							
+
 						}),
 
 					match.expr( match.otherwise, function( ) { quotient = null; } )
@@ -146,7 +146,7 @@ module.exports = function( args ) {
 
 			return quotient;
 		}
-			
+
 
 		function prefixPath( filepath ) {
 
@@ -171,11 +171,11 @@ module.exports = function( args ) {
 
 		return division.definitions.map( function( quotient ) {
 
-			quotient.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( path.sep );
+			quotient.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( '' );
 
 			return [
-				{ 
-					filepath: utilities.prune( args.source, filepath), 
+				{
+					filepath: utilities.prune( args.source, filepath),
 					schema: canonicalize( ['schema'].concat(prefixes).concat( [quotient.name] ) ),
 					content: canonicalize( ['content'] ),
 					names: ['names', quotient.name],
@@ -194,7 +194,7 @@ module.exports = function( args ) {
  * given an AST quotient structure, this method produces
  * the last line in the corresponding sourcefile where
  * that the structure ranges over
- * 
+ *
  * @param  {JSON} quotient a Source Quotient object
  * @return {Number}         a file line number
  */
@@ -219,15 +219,15 @@ function closingLineFromQuotient( quotient ) {
 /**
  * given an AST structure, this routine produces a number
  * representing the extent of a file that that AST structure
- * ranges over 
- * 
+ * ranges over
+ *
  * @param  {JSONAST} ast the ast to check
  * @return {Number}     the last line on which the AST is defined
  */
 function closingLineFromAST( ast ) {
 
 	if ( typeof ast.body !== "undefined" ) {
-  
+
 		return closingLineFromAST( ast.body[ ast.body.length - 1 ] );
 
 	} else {
@@ -237,4 +237,3 @@ function closingLineFromAST( ast ) {
 	}
 
 }
-

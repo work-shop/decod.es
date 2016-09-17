@@ -44,24 +44,34 @@ module.exports = {
 		return extractValue( /result:\s*([\s\S]*)\s*/.exec( docstring ) );
 
 	},
+	members: function( docstring ) {
+
+		return extractValue( /members:\s*([\s\S]*)\s*methods:/.exec( docstring ) );
+
+	},
+	methods: function( docstring ) {
+
+		return extractValue( /methods:\s*([\s\S]*)\s*/.exec( docstring ) );
+
+	},
 	introduction: function( docstring ) {
 
-		return extractValue( /(^[\s\S]*?)(?=required:|result:|:image|$)/.exec( docstring ) );
+		return extractValue( /(^[\s\S]*?)(?=required:|result:|:image|members:|methods:|$)/.exec( docstring ) );
 
 	},
 	images: function( docstring ) {
 
-		return extractRSTStrings( /:image\s*([\S]*):\s*([^:]*)\s*:?/g, docstring, encodeImageString );
+		return extractRSTStrings( /:image\s*([\S]*):\s*([^:]*)\s*(?=required:|result:|members:|methods:|:image|$)/g, docstring, encodeImageString );
 
 	}
 };
 
 function extractValue( value ) {
 
-	return utilities.nullableWithDefault( 
-		value, 
-		function( x ) { return x[1].split('\n').map( function( x ) {return x.trim();} ).filter( nonempty ); }, 
-		null 
+	return utilities.nullableWithDefault(
+		value,
+		function( x ) { return x[1].split('\n').map( function( x ) {return x.trim();} ).filter( nonempty ); },
+		null
 	);
 }
 
@@ -93,9 +103,3 @@ function extractRSTStrings( pattern, string, keytransform ) {
 		return results;
 
 }
-
-
-
-
-
-

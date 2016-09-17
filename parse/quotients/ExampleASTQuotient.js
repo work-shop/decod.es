@@ -77,6 +77,11 @@ module.exports = function( args ) {
 
 							quotient.result = extract.result( ast.docstring );
 
+                            quotient.members = extract.members( ast.docstring );
+
+							quotient.methods = extract.methods( ast.docstring );
+
+
                             try {
 
                                 quotient.references = {
@@ -132,7 +137,7 @@ module.exports = function( args ) {
 					thisBlock.code.start = thisBlock.end;
 					thisBlock.code.end = nextBlock.start - 1;
 
-					thisBlock.code.content = file.slice( thisBlock.code.start, nextBlock.start );
+					thisBlock.code.content = file.slice( thisBlock.code.start, nextBlock.start - 1 );
 
 				} else {
 
@@ -157,7 +162,7 @@ module.exports = function( args ) {
 
 		var prefixes = prefixPath( filepath );
 
-		condensed.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( path.sep );
+		condensed.giturl = [ args.giturl ].concat( prefixes ).concat( [ path.parse( filepath ).base ] ).join( '' );
 
 		return [
 			{
