@@ -1,0 +1,10 @@
+{
+    "apps": [{
+        "name": "build.decod.es",
+        "script": "./Main.js",
+        "args": "serve",
+        "env": {
+            "NODE_ENV": "production"
+        }
+    }]
+}
