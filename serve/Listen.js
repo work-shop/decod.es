@@ -23,9 +23,11 @@ module.exports = function( app, socket, options ) {
 		} catch ( e ) {}
 
 
-		app.listen( socket );
+		app.listen( socket, function() {
 
-		fs.chmodSync( socket, 777 );
+            fs.chmodSync( socket, 777 );
+
+        });
 
 		process.on('SIGINT', function( ) { process.exit(0); });
 
