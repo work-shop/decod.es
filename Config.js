@@ -176,6 +176,27 @@ var build = subparsers.addParser('build', { addHelp: true });
 		}
 	);
 
+var serve = subparsers.addParser('serve', { addHelp: true });
+
+    serve.addArgument(
+        ['-p', '--port'],
+        {
+            help: 'Specify a port to start a local development server on. This flag has no effect in production mode.',
+            defaultValue: 8080
+        }
+    );
+
+    serve.addArgument(
+        ['-d', '--development'],
+        {
+            action: 'storeConst',
+    		dest: 'development',
+    		help: 'Start the server in development mode. This enables TCP listening, rather than the reverse-proxy socket strategy used in production.',
+    		constant: true
+        }
+    );
+
+
 
 var args = parser.parseArgs();
 
