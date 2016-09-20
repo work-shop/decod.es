@@ -1,9 +1,14 @@
 OUTPUT-DIR = output
 IMAGE-DIR = images
 
+branch=develop
+
 
 .PHONY: serve serve-stop build
 
+
+deploy:
+	git push live +$(branch):refs/heads/master
 
 build:
 	./decodes build $(OUTPUT-DIR) --templates="../decod.es-templates"
@@ -15,7 +20,7 @@ serve:
 
 serve-stop:
 	kill -9 $$(ps aux | grep -v grep | grep "livereload" | awk '{print $$2}')
-	kill -9 $$(ps aux | grep -v grep | grep "http-server" | awk '{print $$2}') 
+	kill -9 $$(ps aux | grep -v grep | grep "http-server" | awk '{print $$2}')
 
 clean-files:
 	rm -rf $(OUTPUT-DIR)
