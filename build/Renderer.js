@@ -300,6 +300,20 @@ module.exports = function Renderer( args ) {
 			return string;
 		}
 
+        function extractDocumentedMethods( doc ) {
+
+            return (doc.definitions || []).filter( function( method ) {
+
+                return  (typeof method.documentation !== "undefined") &&
+                        (typeof method.documentation.description !== "undefined" && method.documentation.description[0] !== "null" ) &&
+                        ((typeof method.documentation.parameters !== "undefined" && typeof method.documentation.types !== "undefined" ) ||
+                         (typeof method.documentation.rvalue !== "undefined" && typeof method.documentation.rtype !== "undefined" ));
+
+
+            });
+
+        }
+
 		context.url = function( item ) {
 			return item._url;
 		};
@@ -325,6 +339,8 @@ module.exports = function Renderer( args ) {
         context.exampleReferences = exampleReferences;
 
         context.extractExampleImages = extractExampleImages;
+
+        context.extractDocumentedMethods = extractDocumentedMethods;
 
 		return context;
 	}

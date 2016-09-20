@@ -8,7 +8,7 @@ module.exports = function(  ) {
                 singular = "";
             }
 
-            return ( items.length > 1 ) ? plural : singular;
+            return ( items.length !== 1 ) ? plural : singular;
 
         };
 };
